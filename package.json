@@ -1,0 +1,10 @@
+{
+  "name": "lr-ptb-stats",
+  "version": "1.0.0",
+  "description": "Monorepo for the stats app of LooksRare's Poke The Bear game.",
+  "scripts": {
+    "test": "echo \"TODO add command to run the tests of all sub-repos\" && exit 1"
+  },
+  "author": "Kirienzo",
+  "license": "ISC"
+}
