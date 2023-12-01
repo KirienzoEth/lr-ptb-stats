@@ -1,0 +1,69 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: PokeTheBear
+    network: mainnet
+    source:
+      address: "0x00000000009f22B55D3105e5CfF7D1a6503cF3cE"
+      abi: PokeTheBear
+      startBlock: 18641174
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - CaveAdded
+        - CaveRemoved
+        - CommitmentsSubmitted
+        - DepositsRefunded
+        - DepositsRolledOver
+        - Paused
+        - PrizesClaimed
+        - ProtocolFeeRecipientUpdated
+        - RandomnessRequested
+        - RoleAdminChanged
+        - RoleGranted
+        - RoleRevoked
+        - RoundStatusUpdated
+        - RoundsCancelled
+        - RoundsEntered
+        - Unpaused
+      abis:
+        - name: PokeTheBear
+          file: ./abis/PokeTheBear.json
+      eventHandlers:
+        - event: CaveAdded(uint256,uint256,address,uint40,uint8,uint16)
+          handler: handleCaveAdded
+        - event: CaveRemoved(uint256)
+          handler: handleCaveRemoved
+        - event: CommitmentsSubmitted((uint256,bytes32[])[])
+          handler: handleCommitmentsSubmitted
+        - event: DepositsRefunded((uint256,uint256[])[],address)
+          handler: handleDepositsRefunded
+        - event: DepositsRolledOver((uint256,uint256[],uint256)[],address)
+          handler: handleDepositsRolledOver
+        - event: Paused(address)
+          handler: handlePaused
+        - event: PrizesClaimed((uint256,uint256[])[],address)
+          handler: handlePrizesClaimed
+        - event: ProtocolFeeRecipientUpdated(address)
+          handler: handleProtocolFeeRecipientUpdated
+        - event: RandomnessRequested(uint256,uint256,uint256)
+          handler: handleRandomnessRequested
+        - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
+          handler: handleRoleAdminChanged
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
+        - event: RoundStatusUpdated(uint256,uint256,uint8)
+          handler: handleRoundStatusUpdated
+        - event: RoundsCancelled(uint256,uint256,uint256)
+          handler: handleRoundsCancelled
+        - event: RoundsEntered(uint256,uint256,uint256,address)
+          handler: handleRoundsEntered
+        - event: Unpaused(address)
+          handler: handleUnpaused
+      file: ./src/poke-the-bear.ts

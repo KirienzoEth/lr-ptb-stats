@@ -1,0 +1,150 @@
+type CaveAdded @entity(immutable: true) {
+  id: Bytes!
+  caveId: BigInt! # uint256
+  enterAmount: BigInt! # uint256
+  enterCurrency: Bytes! # address
+  roundDuration: BigInt! # uint40
+  playersPerRound: Int! # uint8
+  protocolFeeBp: Int! # uint16
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CaveRemoved @entity(immutable: true) {
+  id: Bytes!
+  caveId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CommitmentsSubmitted @entity(immutable: true) {
+  id: Bytes!
+  commitments: [Bytes!]! # tuple[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type DepositsRefunded @entity(immutable: true) {
+  id: Bytes!
+  deposits: [Bytes!]! # tuple[]
+  player: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type DepositsRolledOver @entity(immutable: true) {
+  id: Bytes!
+  rollovers: [Bytes!]! # tuple[]
+  player: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Paused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PrizesClaimed @entity(immutable: true) {
+  id: Bytes!
+  prizes: [Bytes!]! # tuple[]
+  player: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProtocolFeeRecipientUpdated @entity(immutable: true) {
+  id: Bytes!
+  protocolFeeRecipient: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RandomnessRequested @entity(immutable: true) {
+  id: Bytes!
+  caveId: BigInt! # uint256
+  roundId: BigInt! # uint256
+  requestId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoleAdminChanged @entity(immutable: true) {
+  id: Bytes!
+  role: Bytes! # bytes32
+  previousAdminRole: Bytes! # bytes32
+  newAdminRole: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoleGranted @entity(immutable: true) {
+  id: Bytes!
+  role: Bytes! # bytes32
+  account: Bytes! # address
+  sender: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoleRevoked @entity(immutable: true) {
+  id: Bytes!
+  role: Bytes! # bytes32
+  account: Bytes! # address
+  sender: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoundStatusUpdated @entity(immutable: true) {
+  id: Bytes!
+  caveId: BigInt! # uint256
+  roundId: BigInt! # uint256
+  status: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoundsCancelled @entity(immutable: true) {
+  id: Bytes!
+  caveId: BigInt! # uint256
+  startingRoundId: BigInt! # uint256
+  numberOfRounds: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoundsEntered @entity(immutable: true) {
+  id: Bytes!
+  caveId: BigInt! # uint256
+  startingRoundId: BigInt! # uint256
+  numberOfRounds: BigInt! # uint256
+  player: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Unpaused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

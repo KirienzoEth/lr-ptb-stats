@@ -1,0 +1,8 @@
+{
+  "mainnet": {
+    "PokeTheBear": {
+      "address": "0x00000000009f22B55D3105e5CfF7D1a6503cF3cE",
+      "startBlock": 18641174
+    }
+  }
+}
