@@ -4,7 +4,6 @@ import {
   CommitmentsSubmitted as CommitmentsSubmittedEvent,
   DepositsRefunded as DepositsRefundedEvent,
   DepositsRolledOver as DepositsRolledOverEvent,
-  Paused as PausedEvent,
   PrizesClaimed as PrizesClaimedEvent,
   ProtocolFeeRecipientUpdated as ProtocolFeeRecipientUpdatedEvent,
   RandomnessRequested as RandomnessRequestedEvent,
@@ -13,59 +12,33 @@ import {
   RoleRevoked as RoleRevokedEvent,
   RoundStatusUpdated as RoundStatusUpdatedEvent,
   RoundsCancelled as RoundsCancelledEvent,
-  RoundsEntered as RoundsEnteredEvent,
-  Unpaused as UnpausedEvent
-} from "../generated/PokeTheBear/PokeTheBear"
-import {
-  CaveAdded,
-  CaveRemoved,
-  CommitmentsSubmitted,
-  DepositsRefunded,
-  DepositsRolledOver,
-  Paused,
-  PrizesClaimed,
-  ProtocolFeeRecipientUpdated,
-  RandomnessRequested,
-  RoleAdminChanged,
-  RoleGranted,
-  RoleRevoked,
-  RoundStatusUpdated,
-  RoundsCancelled,
-  RoundsEntered,
-  Unpaused
-} from "../generated/schema"
+  RoundsEntered as RoundsEnteredEvent
+} from '../generated/PokeTheBear/PokeTheBear';
+import { Cave } from '../generated/schema';
 
 export function handleCaveAdded(event: CaveAddedEvent): void {
-  let entity = new CaveAdded(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.caveId = event.params.caveId
-  entity.enterAmount = event.params.enterAmount
-  entity.enterCurrency = event.params.enterCurrency
-  entity.roundDuration = event.params.roundDuration
-  entity.playersPerRound = event.params.playersPerRound
-  entity.protocolFeeBp = event.params.protocolFeeBp
+  let entity = new Cave(event.params.caveId.toString());
+  entity.enterAmount = event.params.enterAmount;
+  entity.enterCurrency = event.params.enterCurrency;
+  entity.roundDuration = event.params.roundDuration;
+  entity.playersPerRound = event.params.playersPerRound;
+  entity.protocolFeeBp = event.params.protocolFeeBp;
+  entity.isActive = true;
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  entity.save();
 }
 
 export function handleCaveRemoved(event: CaveRemovedEvent): void {
-  let entity = new CaveRemoved(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.caveId = event.params.caveId
+  let entity = Cave.load(event.params.caveId.toString());
+  if (!entity) {
+    throw new Error(`Cave ID ${event.params.caveId} does not exist`);
+  }
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.isActive = false;
 
-  entity.save()
+  entity.save();
 }
-
+/*
 export function handleCommitmentsSubmitted(
   event: CommitmentsSubmittedEvent
 ): void {
@@ -101,19 +74,6 @@ export function handleDepositsRolledOver(event: DepositsRolledOverEvent): void {
   )
   entity.rollovers = event.params.rollovers
   entity.player = event.params.player
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handlePaused(event: PausedEvent): void {
-  let entity = new Paused(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.account = event.params.account
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -258,16 +218,4 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
 
   entity.save()
 }
-
-export function handleUnpaused(event: UnpausedEvent): void {
-  let entity = new Unpaused(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.account = event.params.account
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
+*/

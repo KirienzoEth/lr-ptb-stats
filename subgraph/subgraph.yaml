@@ -19,7 +19,6 @@ dataSources:
         - CommitmentsSubmitted
         - DepositsRefunded
         - DepositsRolledOver
-        - Paused
         - PrizesClaimed
         - ProtocolFeeRecipientUpdated
         - RandomnessRequested
@@ -29,7 +28,6 @@ dataSources:
         - RoundStatusUpdated
         - RoundsCancelled
         - RoundsEntered
-        - Unpaused
       abis:
         - name: PokeTheBear
           file: ./abis/PokeTheBear.json
@@ -44,8 +42,6 @@ dataSources:
           handler: handleDepositsRefunded
         - event: DepositsRolledOver((uint256,uint256[],uint256)[],address)
           handler: handleDepositsRolledOver
-        - event: Paused(address)
-          handler: handlePaused
         - event: PrizesClaimed((uint256,uint256[])[],address)
           handler: handlePrizesClaimed
         - event: ProtocolFeeRecipientUpdated(address)
@@ -64,6 +60,4 @@ dataSources:
           handler: handleRoundsCancelled
         - event: RoundsEntered(uint256,uint256,uint256,address)
           handler: handleRoundsEntered
-        - event: Unpaused(address)
-          handler: handleUnpaused
       file: ./src/poke-the-bear.ts

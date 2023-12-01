@@ -4,27 +4,29 @@ import {
   test,
   clearStore,
   beforeAll,
-  afterAll
-} from "matchstick-as/assembly/index"
-import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts"
-import { CaveAdded } from "../generated/schema"
-import { CaveAdded as CaveAddedEvent } from "../generated/PokeTheBear/PokeTheBear"
-import { handleCaveAdded } from "../src/poke-the-bear"
-import { createCaveAddedEvent } from "./poke-the-bear-utils"
+  afterEach
+} from 'matchstick-as/assembly/index';
+import { BigInt, Address } from '@graphprotocol/graph-ts';
+import { handleCaveAdded, handleCaveRemoved } from '../src/poke-the-bear';
+import {
+  createCaveAddedEvent,
+  createCaveRemovedEvent
+} from './poke-the-bear-utils';
 
-// Tests structure (matchstick-as >=0.5.0)
-// https://thegraph.com/docs/en/developer/matchstick/#tests-structure-0-5-0
+afterEach(() => {
+  clearStore();
+});
 
-describe("Describe entity assertions", () => {
+describe('handleCaveAdded', () => {
   beforeAll(() => {
-    let caveId = BigInt.fromI32(234)
-    let enterAmount = BigInt.fromI32(234)
+    let caveId = BigInt.fromI32(1);
+    let enterAmount = BigInt.fromI32(10000000);
     let enterCurrency = Address.fromString(
-      "0x0000000000000000000000000000000000000001"
-    )
-    let roundDuration = BigInt.fromI32(234)
-    let playersPerRound = 123
-    let protocolFeeBp = 123
+      '0x0000000000000000000000000000000000000001'
+    );
+    let roundDuration = BigInt.fromI32(600);
+    let playersPerRound = 10;
+    let protocolFeeBp = 50;
     let newCaveAddedEvent = createCaveAddedEvent(
       caveId,
       enterAmount,
@@ -32,59 +34,44 @@ describe("Describe entity assertions", () => {
       roundDuration,
       playersPerRound,
       protocolFeeBp
-    )
-    handleCaveAdded(newCaveAddedEvent)
-  })
+    );
+    handleCaveAdded(newCaveAddedEvent);
+  });
+  test('CaveAdded created and stored', () => {
+    assert.entityCount('Cave', 1);
 
-  afterAll(() => {
-    clearStore()
-  })
+    assert.fieldEquals('Cave', '1', 'id', '1');
+    assert.fieldEquals('Cave', '1', 'enterAmount', '10000000');
+    assert.fieldEquals(
+      'Cave',
+      '1',
+      'enterCurrency',
+      '0x0000000000000000000000000000000000000001'
+    );
+    assert.fieldEquals('Cave', '1', 'roundDuration', '600');
+    assert.fieldEquals('Cave', '1', 'playersPerRound', '10');
+    assert.fieldEquals('Cave', '1', 'protocolFeeBp', '50');
+    assert.fieldEquals('Cave', '1', 'isActive', 'true');
+  });
+});
 
-  // For more test scenarios, see:
-  // https://thegraph.com/docs/en/developer/matchstick/#write-a-unit-test
+describe('handleCaveRemoved', () => {
+  beforeAll(() => {
+    let newCaveAddedEvent = createCaveAddedEvent(
+      BigInt.fromI32(1),
+      BigInt.fromI32(10000000),
+      Address.fromString('0x0000000000000000000000000000000000000001'),
+      BigInt.fromI32(600),
+      10,
+      50
+    );
+    let newCaveRemovedEvent = createCaveRemovedEvent(BigInt.fromI32(1));
+    handleCaveAdded(newCaveAddedEvent);
+    handleCaveRemoved(newCaveRemovedEvent);
+  });
+  test('Should set the cave isACtive attribute to false', () => {
+    assert.entityCount('Cave', 1);
 
-  test("CaveAdded created and stored", () => {
-    assert.entityCount("CaveAdded", 1)
-
-    // 0xa16081f360e3847006db660bae1c6d1b2e17ec2a is the default address used in newMockEvent() function
-    assert.fieldEquals(
-      "CaveAdded",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "caveId",
-      "234"
-    )
-    assert.fieldEquals(
-      "CaveAdded",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "enterAmount",
-      "234"
-    )
-    assert.fieldEquals(
-      "CaveAdded",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "enterCurrency",
-      "0x0000000000000000000000000000000000000001"
-    )
-    assert.fieldEquals(
-      "CaveAdded",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "roundDuration",
-      "234"
-    )
-    assert.fieldEquals(
-      "CaveAdded",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "playersPerRound",
-      "123"
-    )
-    assert.fieldEquals(
-      "CaveAdded",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "protocolFeeBp",
-      "123"
-    )
-
-    // More assert options:
-    // https://thegraph.com/docs/en/developer/matchstick/#asserts
-  })
-})
+    assert.fieldEquals('Cave', '1', 'isActive', 'false');
+  });
+});

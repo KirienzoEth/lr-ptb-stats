@@ -1,12 +1,11 @@
-import { newMockEvent } from "matchstick-as"
-import { ethereum, BigInt, Address, Bytes } from "@graphprotocol/graph-ts"
+import { newMockEvent } from 'matchstick-as';
+import { ethereum, BigInt, Address, Bytes } from '@graphprotocol/graph-ts';
 import {
   CaveAdded,
   CaveRemoved,
   CommitmentsSubmitted,
   DepositsRefunded,
   DepositsRolledOver,
-  Paused,
   PrizesClaimed,
   ProtocolFeeRecipientUpdated,
   RandomnessRequested,
@@ -15,9 +14,8 @@ import {
   RoleRevoked,
   RoundStatusUpdated,
   RoundsCancelled,
-  RoundsEntered,
-  Unpaused
-} from "../generated/PokeTheBear/PokeTheBear"
+  RoundsEntered
+} from '../generated/PokeTheBear/PokeTheBear';
 
 export function createCaveAddedEvent(
   caveId: BigInt,
@@ -27,57 +25,57 @@ export function createCaveAddedEvent(
   playersPerRound: i32,
   protocolFeeBp: i32
 ): CaveAdded {
-  let caveAddedEvent = changetype<CaveAdded>(newMockEvent())
+  let caveAddedEvent = changetype<CaveAdded>(newMockEvent());
 
-  caveAddedEvent.parameters = new Array()
+  caveAddedEvent.parameters = new Array();
 
   caveAddedEvent.parameters.push(
-    new ethereum.EventParam("caveId", ethereum.Value.fromUnsignedBigInt(caveId))
-  )
+    new ethereum.EventParam('caveId', ethereum.Value.fromUnsignedBigInt(caveId))
+  );
   caveAddedEvent.parameters.push(
     new ethereum.EventParam(
-      "enterAmount",
+      'enterAmount',
       ethereum.Value.fromUnsignedBigInt(enterAmount)
     )
-  )
+  );
   caveAddedEvent.parameters.push(
     new ethereum.EventParam(
-      "enterCurrency",
+      'enterCurrency',
       ethereum.Value.fromAddress(enterCurrency)
     )
-  )
+  );
   caveAddedEvent.parameters.push(
     new ethereum.EventParam(
-      "roundDuration",
+      'roundDuration',
       ethereum.Value.fromUnsignedBigInt(roundDuration)
     )
-  )
+  );
   caveAddedEvent.parameters.push(
     new ethereum.EventParam(
-      "playersPerRound",
+      'playersPerRound',
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(playersPerRound))
     )
-  )
+  );
   caveAddedEvent.parameters.push(
     new ethereum.EventParam(
-      "protocolFeeBp",
+      'protocolFeeBp',
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(protocolFeeBp))
     )
-  )
+  );
 
-  return caveAddedEvent
+  return caveAddedEvent;
 }
 
 export function createCaveRemovedEvent(caveId: BigInt): CaveRemoved {
-  let caveRemovedEvent = changetype<CaveRemoved>(newMockEvent())
+  let caveRemovedEvent = changetype<CaveRemoved>(newMockEvent());
 
-  caveRemovedEvent.parameters = new Array()
+  caveRemovedEvent.parameters = new Array();
 
   caveRemovedEvent.parameters.push(
-    new ethereum.EventParam("caveId", ethereum.Value.fromUnsignedBigInt(caveId))
-  )
+    new ethereum.EventParam('caveId', ethereum.Value.fromUnsignedBigInt(caveId))
+  );
 
-  return caveRemovedEvent
+  return caveRemovedEvent;
 }
 
 export function createCommitmentsSubmittedEvent(
@@ -85,87 +83,75 @@ export function createCommitmentsSubmittedEvent(
 ): CommitmentsSubmitted {
   let commitmentsSubmittedEvent = changetype<CommitmentsSubmitted>(
     newMockEvent()
-  )
+  );
 
-  commitmentsSubmittedEvent.parameters = new Array()
+  commitmentsSubmittedEvent.parameters = new Array();
 
   commitmentsSubmittedEvent.parameters.push(
     new ethereum.EventParam(
-      "commitments",
+      'commitments',
       ethereum.Value.fromTupleArray(commitments)
     )
-  )
+  );
 
-  return commitmentsSubmittedEvent
+  return commitmentsSubmittedEvent;
 }
 
 export function createDepositsRefundedEvent(
   deposits: Array<ethereum.Tuple>,
   player: Address
 ): DepositsRefunded {
-  let depositsRefundedEvent = changetype<DepositsRefunded>(newMockEvent())
+  let depositsRefundedEvent = changetype<DepositsRefunded>(newMockEvent());
 
-  depositsRefundedEvent.parameters = new Array()
+  depositsRefundedEvent.parameters = new Array();
 
   depositsRefundedEvent.parameters.push(
-    new ethereum.EventParam("deposits", ethereum.Value.fromTupleArray(deposits))
-  )
+    new ethereum.EventParam('deposits', ethereum.Value.fromTupleArray(deposits))
+  );
   depositsRefundedEvent.parameters.push(
-    new ethereum.EventParam("player", ethereum.Value.fromAddress(player))
-  )
+    new ethereum.EventParam('player', ethereum.Value.fromAddress(player))
+  );
 
-  return depositsRefundedEvent
+  return depositsRefundedEvent;
 }
 
 export function createDepositsRolledOverEvent(
   rollovers: Array<ethereum.Tuple>,
   player: Address
 ): DepositsRolledOver {
-  let depositsRolledOverEvent = changetype<DepositsRolledOver>(newMockEvent())
+  let depositsRolledOverEvent = changetype<DepositsRolledOver>(newMockEvent());
 
-  depositsRolledOverEvent.parameters = new Array()
+  depositsRolledOverEvent.parameters = new Array();
 
   depositsRolledOverEvent.parameters.push(
     new ethereum.EventParam(
-      "rollovers",
+      'rollovers',
       ethereum.Value.fromTupleArray(rollovers)
     )
-  )
+  );
   depositsRolledOverEvent.parameters.push(
-    new ethereum.EventParam("player", ethereum.Value.fromAddress(player))
-  )
+    new ethereum.EventParam('player', ethereum.Value.fromAddress(player))
+  );
 
-  return depositsRolledOverEvent
-}
-
-export function createPausedEvent(account: Address): Paused {
-  let pausedEvent = changetype<Paused>(newMockEvent())
-
-  pausedEvent.parameters = new Array()
-
-  pausedEvent.parameters.push(
-    new ethereum.EventParam("account", ethereum.Value.fromAddress(account))
-  )
-
-  return pausedEvent
+  return depositsRolledOverEvent;
 }
 
 export function createPrizesClaimedEvent(
   prizes: Array<ethereum.Tuple>,
   player: Address
 ): PrizesClaimed {
-  let prizesClaimedEvent = changetype<PrizesClaimed>(newMockEvent())
+  let prizesClaimedEvent = changetype<PrizesClaimed>(newMockEvent());
 
-  prizesClaimedEvent.parameters = new Array()
+  prizesClaimedEvent.parameters = new Array();
 
   prizesClaimedEvent.parameters.push(
-    new ethereum.EventParam("prizes", ethereum.Value.fromTupleArray(prizes))
-  )
+    new ethereum.EventParam('prizes', ethereum.Value.fromTupleArray(prizes))
+  );
   prizesClaimedEvent.parameters.push(
-    new ethereum.EventParam("player", ethereum.Value.fromAddress(player))
-  )
+    new ethereum.EventParam('player', ethereum.Value.fromAddress(player))
+  );
 
-  return prizesClaimedEvent
+  return prizesClaimedEvent;
 }
 
 export function createProtocolFeeRecipientUpdatedEvent(
@@ -173,18 +159,18 @@ export function createProtocolFeeRecipientUpdatedEvent(
 ): ProtocolFeeRecipientUpdated {
   let protocolFeeRecipientUpdatedEvent = changetype<
     ProtocolFeeRecipientUpdated
-  >(newMockEvent())
+  >(newMockEvent());
 
-  protocolFeeRecipientUpdatedEvent.parameters = new Array()
+  protocolFeeRecipientUpdatedEvent.parameters = new Array();
 
   protocolFeeRecipientUpdatedEvent.parameters.push(
     new ethereum.EventParam(
-      "protocolFeeRecipient",
+      'protocolFeeRecipient',
       ethereum.Value.fromAddress(protocolFeeRecipient)
     )
-  )
+  );
 
-  return protocolFeeRecipientUpdatedEvent
+  return protocolFeeRecipientUpdatedEvent;
 }
 
 export function createRandomnessRequestedEvent(
@@ -192,27 +178,29 @@ export function createRandomnessRequestedEvent(
   roundId: BigInt,
   requestId: BigInt
 ): RandomnessRequested {
-  let randomnessRequestedEvent = changetype<RandomnessRequested>(newMockEvent())
+  let randomnessRequestedEvent = changetype<RandomnessRequested>(
+    newMockEvent()
+  );
 
-  randomnessRequestedEvent.parameters = new Array()
+  randomnessRequestedEvent.parameters = new Array();
 
   randomnessRequestedEvent.parameters.push(
-    new ethereum.EventParam("caveId", ethereum.Value.fromUnsignedBigInt(caveId))
-  )
+    new ethereum.EventParam('caveId', ethereum.Value.fromUnsignedBigInt(caveId))
+  );
   randomnessRequestedEvent.parameters.push(
     new ethereum.EventParam(
-      "roundId",
+      'roundId',
       ethereum.Value.fromUnsignedBigInt(roundId)
     )
-  )
+  );
   randomnessRequestedEvent.parameters.push(
     new ethereum.EventParam(
-      "requestId",
+      'requestId',
       ethereum.Value.fromUnsignedBigInt(requestId)
     )
-  )
+  );
 
-  return randomnessRequestedEvent
+  return randomnessRequestedEvent;
 }
 
 export function createRoleAdminChangedEvent(
@@ -220,27 +208,27 @@ export function createRoleAdminChangedEvent(
   previousAdminRole: Bytes,
   newAdminRole: Bytes
 ): RoleAdminChanged {
-  let roleAdminChangedEvent = changetype<RoleAdminChanged>(newMockEvent())
+  let roleAdminChangedEvent = changetype<RoleAdminChanged>(newMockEvent());
 
-  roleAdminChangedEvent.parameters = new Array()
+  roleAdminChangedEvent.parameters = new Array();
 
   roleAdminChangedEvent.parameters.push(
-    new ethereum.EventParam("role", ethereum.Value.fromFixedBytes(role))
-  )
+    new ethereum.EventParam('role', ethereum.Value.fromFixedBytes(role))
+  );
   roleAdminChangedEvent.parameters.push(
     new ethereum.EventParam(
-      "previousAdminRole",
+      'previousAdminRole',
       ethereum.Value.fromFixedBytes(previousAdminRole)
     )
-  )
+  );
   roleAdminChangedEvent.parameters.push(
     new ethereum.EventParam(
-      "newAdminRole",
+      'newAdminRole',
       ethereum.Value.fromFixedBytes(newAdminRole)
     )
-  )
+  );
 
-  return roleAdminChangedEvent
+  return roleAdminChangedEvent;
 }
 
 export function createRoleGrantedEvent(
@@ -248,21 +236,21 @@ export function createRoleGrantedEvent(
   account: Address,
   sender: Address
 ): RoleGranted {
-  let roleGrantedEvent = changetype<RoleGranted>(newMockEvent())
+  let roleGrantedEvent = changetype<RoleGranted>(newMockEvent());
 
-  roleGrantedEvent.parameters = new Array()
+  roleGrantedEvent.parameters = new Array();
 
   roleGrantedEvent.parameters.push(
-    new ethereum.EventParam("role", ethereum.Value.fromFixedBytes(role))
-  )
+    new ethereum.EventParam('role', ethereum.Value.fromFixedBytes(role))
+  );
   roleGrantedEvent.parameters.push(
-    new ethereum.EventParam("account", ethereum.Value.fromAddress(account))
-  )
+    new ethereum.EventParam('account', ethereum.Value.fromAddress(account))
+  );
   roleGrantedEvent.parameters.push(
-    new ethereum.EventParam("sender", ethereum.Value.fromAddress(sender))
-  )
+    new ethereum.EventParam('sender', ethereum.Value.fromAddress(sender))
+  );
 
-  return roleGrantedEvent
+  return roleGrantedEvent;
 }
 
 export function createRoleRevokedEvent(
@@ -270,21 +258,21 @@ export function createRoleRevokedEvent(
   account: Address,
   sender: Address
 ): RoleRevoked {
-  let roleRevokedEvent = changetype<RoleRevoked>(newMockEvent())
+  let roleRevokedEvent = changetype<RoleRevoked>(newMockEvent());
 
-  roleRevokedEvent.parameters = new Array()
+  roleRevokedEvent.parameters = new Array();
 
   roleRevokedEvent.parameters.push(
-    new ethereum.EventParam("role", ethereum.Value.fromFixedBytes(role))
-  )
+    new ethereum.EventParam('role', ethereum.Value.fromFixedBytes(role))
+  );
   roleRevokedEvent.parameters.push(
-    new ethereum.EventParam("account", ethereum.Value.fromAddress(account))
-  )
+    new ethereum.EventParam('account', ethereum.Value.fromAddress(account))
+  );
   roleRevokedEvent.parameters.push(
-    new ethereum.EventParam("sender", ethereum.Value.fromAddress(sender))
-  )
+    new ethereum.EventParam('sender', ethereum.Value.fromAddress(sender))
+  );
 
-  return roleRevokedEvent
+  return roleRevokedEvent;
 }
 
 export function createRoundStatusUpdatedEvent(
@@ -292,27 +280,27 @@ export function createRoundStatusUpdatedEvent(
   roundId: BigInt,
   status: i32
 ): RoundStatusUpdated {
-  let roundStatusUpdatedEvent = changetype<RoundStatusUpdated>(newMockEvent())
+  let roundStatusUpdatedEvent = changetype<RoundStatusUpdated>(newMockEvent());
 
-  roundStatusUpdatedEvent.parameters = new Array()
+  roundStatusUpdatedEvent.parameters = new Array();
 
   roundStatusUpdatedEvent.parameters.push(
-    new ethereum.EventParam("caveId", ethereum.Value.fromUnsignedBigInt(caveId))
-  )
+    new ethereum.EventParam('caveId', ethereum.Value.fromUnsignedBigInt(caveId))
+  );
   roundStatusUpdatedEvent.parameters.push(
     new ethereum.EventParam(
-      "roundId",
+      'roundId',
       ethereum.Value.fromUnsignedBigInt(roundId)
     )
-  )
+  );
   roundStatusUpdatedEvent.parameters.push(
     new ethereum.EventParam(
-      "status",
+      'status',
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(status))
     )
-  )
+  );
 
-  return roundStatusUpdatedEvent
+  return roundStatusUpdatedEvent;
 }
 
 export function createRoundsCancelledEvent(
@@ -320,27 +308,27 @@ export function createRoundsCancelledEvent(
   startingRoundId: BigInt,
   numberOfRounds: BigInt
 ): RoundsCancelled {
-  let roundsCancelledEvent = changetype<RoundsCancelled>(newMockEvent())
+  let roundsCancelledEvent = changetype<RoundsCancelled>(newMockEvent());
 
-  roundsCancelledEvent.parameters = new Array()
+  roundsCancelledEvent.parameters = new Array();
 
   roundsCancelledEvent.parameters.push(
-    new ethereum.EventParam("caveId", ethereum.Value.fromUnsignedBigInt(caveId))
-  )
+    new ethereum.EventParam('caveId', ethereum.Value.fromUnsignedBigInt(caveId))
+  );
   roundsCancelledEvent.parameters.push(
     new ethereum.EventParam(
-      "startingRoundId",
+      'startingRoundId',
       ethereum.Value.fromUnsignedBigInt(startingRoundId)
     )
-  )
+  );
   roundsCancelledEvent.parameters.push(
     new ethereum.EventParam(
-      "numberOfRounds",
+      'numberOfRounds',
       ethereum.Value.fromUnsignedBigInt(numberOfRounds)
     )
-  )
+  );
 
-  return roundsCancelledEvent
+  return roundsCancelledEvent;
 }
 
 export function createRoundsEnteredEvent(
@@ -349,40 +337,28 @@ export function createRoundsEnteredEvent(
   numberOfRounds: BigInt,
   player: Address
 ): RoundsEntered {
-  let roundsEnteredEvent = changetype<RoundsEntered>(newMockEvent())
+  let roundsEnteredEvent = changetype<RoundsEntered>(newMockEvent());
 
-  roundsEnteredEvent.parameters = new Array()
+  roundsEnteredEvent.parameters = new Array();
 
   roundsEnteredEvent.parameters.push(
-    new ethereum.EventParam("caveId", ethereum.Value.fromUnsignedBigInt(caveId))
-  )
+    new ethereum.EventParam('caveId', ethereum.Value.fromUnsignedBigInt(caveId))
+  );
   roundsEnteredEvent.parameters.push(
     new ethereum.EventParam(
-      "startingRoundId",
+      'startingRoundId',
       ethereum.Value.fromUnsignedBigInt(startingRoundId)
     )
-  )
+  );
   roundsEnteredEvent.parameters.push(
     new ethereum.EventParam(
-      "numberOfRounds",
+      'numberOfRounds',
       ethereum.Value.fromUnsignedBigInt(numberOfRounds)
     )
-  )
+  );
   roundsEnteredEvent.parameters.push(
-    new ethereum.EventParam("player", ethereum.Value.fromAddress(player))
-  )
+    new ethereum.EventParam('player', ethereum.Value.fromAddress(player))
+  );
 
-  return roundsEnteredEvent
-}
-
-export function createUnpausedEvent(account: Address): Unpaused {
-  let unpausedEvent = changetype<Unpaused>(newMockEvent())
-
-  unpausedEvent.parameters = new Array()
-
-  unpausedEvent.parameters.push(
-    new ethereum.EventParam("account", ethereum.Value.fromAddress(account))
-  )
-
-  return unpausedEvent
+  return roundsEnteredEvent;
 }
