@@ -1,3 +1,4 @@
+import { BigInt } from '@graphprotocol/graph-ts';
 import {
   CaveAdded as CaveAddedEvent,
   CaveRemoved as CaveRemovedEvent,
@@ -7,36 +8,33 @@ import {
   PrizesClaimed as PrizesClaimedEvent,
   ProtocolFeeRecipientUpdated as ProtocolFeeRecipientUpdatedEvent,
   RandomnessRequested as RandomnessRequestedEvent,
-  RoleAdminChanged as RoleAdminChangedEvent,
-  RoleGranted as RoleGrantedEvent,
-  RoleRevoked as RoleRevokedEvent,
   RoundStatusUpdated as RoundStatusUpdatedEvent,
   RoundsCancelled as RoundsCancelledEvent,
   RoundsEntered as RoundsEnteredEvent
 } from '../generated/PokeTheBear/PokeTheBear';
-import { Cave } from '../generated/schema';
+import { Cave, Player, PlayerRound, Round } from '../generated/schema';
 
+// TODO estimate the oracle fees every time a VRF call is made https://docs.chain.link/vrf/v2/estimating-costs?network=ethereum-mainnet
 export function handleCaveAdded(event: CaveAddedEvent): void {
-  let entity = new Cave(event.params.caveId.toString());
-  entity.enterAmount = event.params.enterAmount;
-  entity.enterCurrency = event.params.enterCurrency;
-  entity.roundDuration = event.params.roundDuration;
-  entity.playersPerRound = event.params.playersPerRound;
-  entity.protocolFeeBp = event.params.protocolFeeBp;
-  entity.isActive = true;
+  let cave = new Cave(event.params.caveId.toString());
+  cave.enterAmount = event.params.enterAmount;
+  cave.enterCurrency = event.params.enterCurrency;
+  cave.roundDuration = event.params.roundDuration;
+  cave.playersPerRound = event.params.playersPerRound;
+  cave.protocolFeeBp = event.params.protocolFeeBp;
+  cave.isActive = true;
+  cave.roundsCount = new BigInt(0);
+  cave.maintenanceCost = new BigInt(0);
 
-  entity.save();
+  cave.save();
 }
 
 export function handleCaveRemoved(event: CaveRemovedEvent): void {
-  let entity = Cave.load(event.params.caveId.toString());
-  if (!entity) {
-    throw new Error(`Cave ID ${event.params.caveId} does not exist`);
-  }
+  let cave = Cave.load(event.params.caveId.toString())!;
 
-  entity.isActive = false;
+  cave.isActive = false;
 
-  entity.save();
+  cave.save();
 }
 /*
 export function handleCommitmentsSubmitted(
@@ -128,51 +126,6 @@ export function handleRandomnessRequested(
   entity.save()
 }
 
-export function handleRoleAdminChanged(event: RoleAdminChangedEvent): void {
-  let entity = new RoleAdminChanged(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.role = event.params.role
-  entity.previousAdminRole = event.params.previousAdminRole
-  entity.newAdminRole = event.params.newAdminRole
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleRoleGranted(event: RoleGrantedEvent): void {
-  let entity = new RoleGranted(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.role = event.params.role
-  entity.account = event.params.account
-  entity.sender = event.params.sender
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleRoleRevoked(event: RoleRevokedEvent): void {
-  let entity = new RoleRevoked(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.role = event.params.role
-  entity.account = event.params.account
-  entity.sender = event.params.sender
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
 export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
   let entity = new RoundStatusUpdated(
     event.transaction.hash.concatI32(event.logIndex.toI32())
@@ -195,22 +148,6 @@ export function handleRoundsCancelled(event: RoundsCancelledEvent): void {
   entity.caveId = event.params.caveId
   entity.startingRoundId = event.params.startingRoundId
   entity.numberOfRounds = event.params.numberOfRounds
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleRoundsEntered(event: RoundsEnteredEvent): void {
-  let entity = new RoundsEntered(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.caveId = event.params.caveId
-  entity.startingRoundId = event.params.startingRoundId
-  entity.numberOfRounds = event.params.numberOfRounds
-  entity.player = event.params.player
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
