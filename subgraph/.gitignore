@@ -1,5 +1,6 @@
 # generated files
 /generated
+tests/.bin/*
 
 # env files
 .env

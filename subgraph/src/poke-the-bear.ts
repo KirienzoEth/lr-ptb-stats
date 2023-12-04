@@ -1,4 +1,4 @@
-import { BigInt } from '@graphprotocol/graph-ts';
+import { Address, BigInt, log } from '@graphprotocol/graph-ts';
 import {
   CaveAdded as CaveAddedEvent,
   CaveRemoved as CaveRemovedEvent,
@@ -12,29 +12,66 @@ import {
   RoundsCancelled as RoundsCancelledEvent,
   RoundsEntered as RoundsEnteredEvent
 } from '../generated/PokeTheBear/PokeTheBear';
-import { Cave, Player, PlayerRound, Round } from '../generated/schema';
+import {
+  createCave,
+  createPlayerRound,
+  getCave,
+  getPlayer,
+  getRound
+} from './loaders';
 
-// TODO estimate the oracle fees every time a VRF call is made https://docs.chain.link/vrf/v2/estimating-costs?network=ethereum-mainnet
 export function handleCaveAdded(event: CaveAddedEvent): void {
-  let cave = new Cave(event.params.caveId.toString());
+  let cave = createCave(event.params.caveId.toString());
   cave.enterAmount = event.params.enterAmount;
   cave.enterCurrency = event.params.enterCurrency;
   cave.roundDuration = event.params.roundDuration;
   cave.playersPerRound = event.params.playersPerRound;
   cave.protocolFeeBp = event.params.protocolFeeBp;
-  cave.isActive = true;
-  cave.roundsCount = new BigInt(0);
-  cave.maintenanceCost = new BigInt(0);
 
   cave.save();
 }
 
 export function handleCaveRemoved(event: CaveRemovedEvent): void {
-  let cave = Cave.load(event.params.caveId.toString())!;
+  let cave = getCave(event.params.caveId.toString());
 
   cave.isActive = false;
 
   cave.save();
+}
+
+// TODO estimate the oracle fees every time a VRF call is made https://docs.chain.link/vrf/v2/estimating-costs?network=ethereum-mainnet
+export function handleRoundsEntered(event: RoundsEnteredEvent): void {
+  let cave = getCave(event.params.caveId.toString());
+
+  // Create player if it does not exist at this point
+  let player = getPlayer(event.params.player.toHexString(), true);
+
+  let maxRoundId = event.params.startingRoundId.plus(
+    event.params.numberOfRounds
+  );
+  for (
+    let roundId = event.params.startingRoundId;
+    roundId.lt(maxRoundId);
+    roundId = roundId.plus(BigInt.fromI32(1))
+  ) {
+    // Create round if it does not exist at this point
+    getRound(roundId.toString(), cave.id, true);
+
+    // A player cannot enter a round multiple times
+    // So we can create the entity every time a round is entered
+    createPlayerRound(player.id, cave.id, roundId.toString());
+
+    player.roundsEnteredCount = player.roundsEnteredCount.plus(
+      BigInt.fromI32(1)
+    );
+    if (cave.enterCurrency == Address.zero()) {
+      player.ethWagered = player.ethWagered.plus(cave.enterAmount);
+    } else {
+      player.looksWagered = player.looksWagered.plus(cave.enterAmount);
+    }
+  }
+
+  player.save();
 }
 /*
 export function handleCommitmentsSubmitted(

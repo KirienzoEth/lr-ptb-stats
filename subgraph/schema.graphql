@@ -5,5 +5,37 @@ type Cave @entity {
   roundDuration: BigInt! # uint40
   playersPerRound: Int! # uint8
   protocolFeeBp: Int! # uint16
-  isActive: Boolean! 
+  roundsCount: BigInt! # uint256
+  isActive: Boolean!
+  "How much ETH this cave costs to operate"
+  maintenanceCost: BigInt!
+  rounds: [Round!]! @derivedFrom(field: "cave")
+}
+
+type Round @entity {
+  "cave ID + round ID"
+  id: String!
+  roundId: String!
+  cave: Cave!
+  players: [PlayerRound!]! @derivedFrom(field: "round")
+}
+
+type Player @entity {
+  id: String! # address
+  looksWagered: BigInt! # uint256
+  ethWagered: BigInt! # uint256
+  looksWon: BigInt! # uint256
+  ethWon: BigInt! # uint256
+  roundsEnteredCount: BigInt! #uint256
+  roundsEntered: [PlayerRound!]! @derivedFrom(field: "player")
+}
+
+type PlayerRound @entity {
+  "player ID + cave ID + round ID"
+  id: String!
+  player: Player!
+  cave: Cave!
+  round: Round!
+  "Estimates of the Gems the player earned by completing the round"
+  gemsEarned: BigInt! # uint256
 }

@@ -22,9 +22,6 @@ dataSources:
         - PrizesClaimed
         - ProtocolFeeRecipientUpdated
         - RandomnessRequested
-        - RoleAdminChanged
-        - RoleGranted
-        - RoleRevoked
         - RoundStatusUpdated
         - RoundsCancelled
         - RoundsEntered
@@ -48,12 +45,6 @@ dataSources:
           handler: handleProtocolFeeRecipientUpdated
         - event: RandomnessRequested(uint256,uint256,uint256)
           handler: handleRandomnessRequested
-        - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
-          handler: handleRoleAdminChanged
-        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
-          handler: handleRoleGranted
-        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
-          handler: handleRoleRevoked
         - event: RoundStatusUpdated(uint256,uint256,uint8)
           handler: handleRoundStatusUpdated
         - event: RoundsCancelled(uint256,uint256,uint256)
