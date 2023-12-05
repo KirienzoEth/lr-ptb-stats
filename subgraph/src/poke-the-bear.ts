@@ -5,6 +5,7 @@ import {
   CommitmentsSubmitted as CommitmentsSubmittedEvent,
   DepositsRefunded as DepositsRefundedEvent,
   DepositsRolledOver as DepositsRolledOverEvent,
+  PokeTheBear,
   PrizesClaimed as PrizesClaimedEvent,
   ProtocolFeeRecipientUpdated as ProtocolFeeRecipientUpdatedEvent,
   RandomnessRequested as RandomnessRequestedEvent,
@@ -19,6 +20,7 @@ import {
   getPlayer,
   getRound
 } from './loaders';
+import { RoundStatus } from './enums';
 
 export function handleCaveAdded(event: CaveAddedEvent): void {
   let cave = createCave(event.params.caveId.toString());
@@ -43,7 +45,7 @@ export function handleCaveRemoved(event: CaveRemovedEvent): void {
 export function handleRoundsEntered(event: RoundsEnteredEvent): void {
   let cave = getCave(event.params.caveId.toString());
 
-  // Create player if it does not exist at this point
+  // Create player if it does not exist yet
   let player = getPlayer(event.params.player.toHexString(), true);
 
   let maxRoundId = event.params.startingRoundId.plus(
@@ -54,12 +56,15 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
     roundId.lt(maxRoundId);
     roundId = roundId.plus(BigInt.fromI32(1))
   ) {
-    // Create round if it does not exist at this point
-    getRound(roundId.toString(), cave.id, true);
+    // Create round if it does not exist yet
+    let round = getRound(cave.id, roundId.toString(), true);
 
     // A player cannot enter a round multiple times
-    // So we can create the entity every time a round is entered
+    // So we can create this entity every time a round is entered
     createPlayerRound(player.id, cave.id, roundId.toString());
+
+    round.playersCount = round.playersCount.plus(BigInt.fromI32(1));
+    round.save();
 
     player.roundsEnteredCount = player.roundsEnteredCount.plus(
       BigInt.fromI32(1)
@@ -72,6 +77,85 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
   }
 
   player.save();
+}
+
+export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
+  let round = getRound(
+    event.params.caveId.toString(),
+    event.params.roundId.toString(),
+    // status ID 1 means a round has been opened
+    event.params.status === 1
+  );
+
+  if (event.params.status < 4) {
+    return;
+  }
+
+  let cave = getCave(round.cave);
+
+  // Round has been revealed and loser has been selected
+  if (event.params.status === 4) {
+    let contract = PokeTheBear.bind(event.address);
+    let roundData = contract.getRound(
+      event.params.caveId,
+      event.params.roundId
+    );
+    let players = roundData.value6;
+    for (let i = 0; i < players.length; i++) {
+      const player = getPlayer(players[i].addr.toHexString());
+      // If a loser has been selected save it
+      if (players[i].isLoser) {
+        round.loser = player.id;
+        player.roundsLostCount = player.roundsLostCount.plus(BigInt.fromI32(1));
+        // or else, distribute the prizes to the winning players
+      } else {
+        player.roundsWonCount = player.roundsWonCount.plus(BigInt.fromI32(1));
+        if (cave.enterCurrency == Address.zero()) {
+          player.ethWon = player.ethWon.plus(
+            cave.enterAmount
+              .times(BigInt.fromI32(10_000 - cave.protocolFeeBp))
+              .div(BigInt.fromI32(10_000))
+          );
+        } else {
+          player.looksWon = player.looksWon.plus(
+            cave.enterAmount
+              .times(BigInt.fromI32(10_000 - cave.protocolFeeBp))
+              .div(BigInt.fromI32(10_000))
+          );
+        }
+      }
+
+      player.save();
+    }
+
+    if (round.loser === null) {
+      log.critical(
+        'Round ID {} from cave ID {} has been revealed but loser has not been picked',
+        [event.params.caveId.toString(), event.params.roundId.toString()]
+      );
+    }
+
+    round.status = RoundStatus.REVEALED;
+  }
+  // Round has been cancelled
+  else if (event.params.status === 5) {
+    round.status = RoundStatus.CANCELLED;
+    let playerRounds = round.players.load();
+
+    // Subtract the amount wagered for this round from each player's amount
+    for (let i = 0; i < playerRounds.length; i++) {
+      const playerRound = playerRounds[i];
+      const player = getPlayer(playerRound.player);
+      if (cave.enterCurrency == Address.zero()) {
+        player.ethWagered = player.ethWagered.minus(cave.enterAmount);
+      } else {
+        player.looksWagered = player.looksWagered.minus(cave.enterAmount);
+      }
+      player.save();
+    }
+  }
+
+  round.save();
 }
 /*
 export function handleCommitmentsSubmitted(

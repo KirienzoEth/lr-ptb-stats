@@ -1,6 +1,7 @@
 # generated files
 /generated
 tests/.bin/*.wasm
+build/
 
 # env files
 .env

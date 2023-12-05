@@ -1,3 +1,10 @@
+enum RoundStatus {
+  OPEN
+  DRAWING
+  REVEALED
+  CANCELLED
+}
+
 type Cave @entity {
   id: String! # uint256
   enterAmount: BigInt! # uint256
@@ -15,8 +22,11 @@ type Cave @entity {
 type Round @entity {
   "cave ID + round ID"
   id: String!
-  roundId: String!
+  roundId: BigInt!
   cave: Cave!
+  status: RoundStatus!
+  loser: Player
+  playersCount: BigInt!
   players: [PlayerRound!]! @derivedFrom(field: "round")
 }
 
@@ -26,6 +36,8 @@ type Player @entity {
   ethWagered: BigInt! # uint256
   looksWon: BigInt! # uint256
   ethWon: BigInt! # uint256
+  roundsWonCount: BigInt!
+  roundsLostCount: BigInt!
   roundsEnteredCount: BigInt! #uint256
   roundsEntered: [PlayerRound!]! @derivedFrom(field: "player")
 }

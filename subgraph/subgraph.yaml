@@ -33,22 +33,11 @@ dataSources:
           handler: handleCaveAdded
         - event: CaveRemoved(uint256)
           handler: handleCaveRemoved
-        - event: CommitmentsSubmitted((uint256,bytes32[])[])
-          handler: handleCommitmentsSubmitted
-        - event: DepositsRefunded((uint256,uint256[])[],address)
-          handler: handleDepositsRefunded
-        - event: DepositsRolledOver((uint256,uint256[],uint256)[],address)
-          handler: handleDepositsRolledOver
-        - event: PrizesClaimed((uint256,uint256[])[],address)
-          handler: handlePrizesClaimed
-        - event: ProtocolFeeRecipientUpdated(address)
-          handler: handleProtocolFeeRecipientUpdated
-        - event: RandomnessRequested(uint256,uint256,uint256)
-          handler: handleRandomnessRequested
         - event: RoundStatusUpdated(uint256,uint256,uint8)
           handler: handleRoundStatusUpdated
-        - event: RoundsCancelled(uint256,uint256,uint256)
-          handler: handleRoundsCancelled
+        # Isolate the round cancellation code in 'handleRoundStatusUpdated' to avoid duplicates
+        # - event: RoundsCancelled(uint256,uint256,uint256)
+        #   handler: handleRoundsCancelled
         - event: RoundsEntered(uint256,uint256,uint256,address)
           handler: handleRoundsEntered
       file: ./src/poke-the-bear.ts
