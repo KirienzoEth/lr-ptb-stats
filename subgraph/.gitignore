@@ -1,6 +1,6 @@
 # generated files
 /generated
-tests/.bin/*
+tests/.bin/*.wasm
 
 # env files
 .env
