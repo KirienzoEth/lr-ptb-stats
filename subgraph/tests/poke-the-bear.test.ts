@@ -249,6 +249,8 @@ describe('handleRoundStatusUpdated', () => {
   beforeEach(() => {
     const cave = createCave('3');
     cave.enterAmount = BigInt.fromI32(10_000_000);
+    cave.playersPerRound = 2;
+    cave.protocolFeeBp = 50;
     cave.save();
 
     let roundsOpenedEvent = createRoundStatusUpdatedEvent(
@@ -368,7 +370,7 @@ describe('handleRoundStatusUpdated', () => {
         ethereum.Value.fromI32Array(playerIndices),
         ethereum.Value.fromTupleArray([player1Tuple, player2Tuple])
       ]);
-    let roundRevealedEvent = createRoundStatusUpdatedEvent(
+    const roundRevealedEvent = createRoundStatusUpdatedEvent(
       BigInt.fromI32(3),
       BigInt.fromI32(1),
       4
@@ -376,9 +378,10 @@ describe('handleRoundStatusUpdated', () => {
     handleRoundStatusUpdated(roundRevealedEvent);
 
     assert.entityCount('Round', 1);
-    let round = Round.load('3-1')!;
+    const round = Round.load('3-1')!;
     assert.stringEquals(round.status, RoundStatus.REVEALED);
     assert.assertNotNull(round.loser);
+    const cave = getCave(round.cave);
 
     const playerRounds = round.players.load();
     assert.i32Equals(playerRounds.length, 2);
@@ -387,8 +390,16 @@ describe('handleRoundStatusUpdated', () => {
     assert.stringEquals(round.loser!, player1.id);
     assert.bigIntEquals(player1.roundsLostCount, BigInt.fromI32(1));
     assert.bigIntEquals(player1.roundsWonCount, BigInt.zero());
+    assert.bigIntEquals(player1.ethWon, BigInt.zero());
     const player2 = getPlayer('0x0000000000000000000000000000000000000456');
     assert.bigIntEquals(player2.roundsLostCount, BigInt.zero());
     assert.bigIntEquals(player2.roundsWonCount, BigInt.fromI32(1));
+    assert.bigIntEquals(
+      player2.ethWon,
+      cave.enterAmount
+        .times(BigInt.fromI32(10_000 - cave.protocolFeeBp))
+        .div(BigInt.fromI32(10_000))
+        .div(BigInt.fromI32(cave.playersPerRound - 1))
+    );
   });
 });

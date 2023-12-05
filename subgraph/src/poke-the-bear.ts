@@ -115,12 +115,14 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
             cave.enterAmount
               .times(BigInt.fromI32(10_000 - cave.protocolFeeBp))
               .div(BigInt.fromI32(10_000))
+              .div(BigInt.fromI32(cave.playersPerRound - 1))
           );
         } else {
           player.looksWon = player.looksWon.plus(
             cave.enterAmount
               .times(BigInt.fromI32(10_000 - cave.protocolFeeBp))
               .div(BigInt.fromI32(10_000))
+              .div(BigInt.fromI32(cave.playersPerRound - 1))
           );
         }
       }
