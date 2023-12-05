@@ -4,19 +4,21 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ lr-ptb",
+    "deploy-studio": "graph deploy --node https://api.studio.thegraph.com/deploy/ lr-ptb",
+    "deploy": "graph deploy --product hosted-service kirienzoeth/lr-ptb-stats",
     "create-local": "graph create --node http://localhost:8020/ lr-ptb",
     "remove-local": "graph remove --node http://localhost:8020/ lr-ptb",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 lr-ptb",
     "graph-test": "graph test",
     "test-build": "docker build -t matchstick .",
-    "test": "docker run -it --rm --mount type=bind,source=%INIT_CWD%,target=/matchstick matchstick"
+    "test": "docker run -it --rm --mount type=bind,source=%INIT_CWD%,target=/matchstick matchstick",
+    "test-coverage": "docker run -it --rm --mount type=bind,source=%INIT_CWD%,target=/matchstick matchstick -c"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.62.0",
-    "@graphprotocol/graph-ts": "0.30.0"
+    "@graphprotocol/graph-ts": "0.31.0"
   },
   "devDependencies": {
-    "matchstick-as": "0.5.0"
+    "matchstick-as": "0.6.0"
   }
 }
