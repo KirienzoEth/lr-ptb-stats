@@ -35,6 +35,8 @@ export function createPlayer(playerAddress: string): Player {
   player.ethWagered = new BigInt(0);
   player.looksWon = new BigInt(0);
   player.ethWon = new BigInt(0);
+  player.looksLost = new BigInt(0);
+  player.ethLost = new BigInt(0);
   player.roundsEnteredCount = new BigInt(0);
   player.roundsWonCount = new BigInt(0);
   player.roundsLostCount = new BigInt(0);

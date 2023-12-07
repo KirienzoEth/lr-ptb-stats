@@ -28,7 +28,8 @@ import {
   createPlayerRound,
   getCave,
   getPlayer,
-  getPlayerRound
+  getPlayerRound,
+  getRound
 } from '../src/loaders';
 
 afterEach(() => {
@@ -132,6 +133,10 @@ describe('handleRoundsEntered', () => {
     let player = Player.load('0x0000000000000000000000000000000000000123')!;
     assert.bigIntEquals(player.looksWagered, BigInt.fromI32(10000000));
     assert.bigIntEquals(player.ethWagered, BigInt.zero());
+    assert.bigIntEquals(player.ethWon, BigInt.zero());
+    assert.bigIntEquals(player.looksWon, BigInt.zero());
+    assert.bigIntEquals(player.ethLost, BigInt.zero());
+    assert.bigIntEquals(player.ethWon, BigInt.zero());
     assert.bigIntEquals(player.roundsEnteredCount, BigInt.fromI32(1));
 
     assert.entityCount('PlayerRound', 1);
@@ -294,18 +299,6 @@ describe('handleRoundStatusUpdated', () => {
     },
     true
   );
-  test('Should cancel the round and subtract players looks wagers when status is 5', () => {
-    let roundCancelledEvent = createRoundStatusUpdatedEvent(
-      BigInt.fromI32(3),
-      BigInt.fromI32(1),
-      5
-    );
-    handleRoundStatusUpdated(roundCancelledEvent);
-
-    assert.entityCount('Round', 1);
-    let round = Round.load('3-1')!;
-    assert.stringEquals(round.status, RoundStatus.CANCELLED);
-  });
   test('Should cancel the round when status is 5', () => {
     const player1EthWagered = BigInt.fromI32(10_000_000);
     const player2EthWagered = BigInt.fromI32(20_000_000);
@@ -391,9 +384,15 @@ describe('handleRoundStatusUpdated', () => {
     assert.bigIntEquals(player1.roundsLostCount, BigInt.fromI32(1));
     assert.bigIntEquals(player1.roundsWonCount, BigInt.zero());
     assert.bigIntEquals(player1.ethWon, BigInt.zero());
+    assert.bigIntEquals(player1.ethLost, cave.enterAmount);
+    assert.bigIntEquals(player1.looksWon, BigInt.zero());
+    assert.bigIntEquals(player1.looksLost, BigInt.zero());
     const player2 = getPlayer('0x0000000000000000000000000000000000000456');
     assert.bigIntEquals(player2.roundsLostCount, BigInt.zero());
     assert.bigIntEquals(player2.roundsWonCount, BigInt.fromI32(1));
+    assert.bigIntEquals(player2.looksWon, BigInt.zero());
+    assert.bigIntEquals(player2.looksLost, BigInt.zero());
+    assert.bigIntEquals(player2.ethLost, BigInt.zero());
     assert.bigIntEquals(
       player2.ethWon,
       cave.enterAmount

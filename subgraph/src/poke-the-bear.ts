@@ -107,6 +107,11 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
       if (players[i].isLoser) {
         round.loser = player.id;
         player.roundsLostCount = player.roundsLostCount.plus(BigInt.fromI32(1));
+        if (cave.enterCurrency == Address.zero()) {
+          player.ethLost = player.ethLost.plus(cave.enterAmount);
+        } else {
+          player.looksLost = player.looksLost.plus(cave.enterAmount);
+        }
         // or else, distribute the prizes to the winning players
       } else {
         player.roundsWonCount = player.roundsWonCount.plus(BigInt.fromI32(1));
@@ -224,23 +229,6 @@ export function handleProtocolFeeRecipientUpdated(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.protocolFeeRecipient = event.params.protocolFeeRecipient
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleRandomnessRequested(
-  event: RandomnessRequestedEvent
-): void {
-  let entity = new RandomnessRequested(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.caveId = event.params.caveId
-  entity.roundId = event.params.roundId
-  entity.requestId = event.params.requestId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp

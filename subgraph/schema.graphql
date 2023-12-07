@@ -36,6 +36,8 @@ type Player @entity {
   ethWagered: BigInt! # uint256
   looksWon: BigInt! # uint256
   ethWon: BigInt! # uint256
+  looksLost: BigInt! # uint256
+  ethLost: BigInt! # uint256
   roundsWonCount: BigInt!
   roundsLostCount: BigInt!
   roundsEnteredCount: BigInt! #uint256
