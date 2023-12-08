@@ -1,4 +1,4 @@
-import { newMockEvent } from 'matchstick-as';
+import { createMockedFunction, newMockEvent } from 'matchstick-as';
 import { ethereum, BigInt, Address, Bytes } from '@graphprotocol/graph-ts';
 import {
   CaveAdded,
@@ -16,6 +16,11 @@ import {
   RoundsCancelled,
   RoundsEntered
 } from '../generated/PokeTheBear/PokeTheBear';
+import {
+  looksTokenAddress,
+  priceOracleAddress,
+  usdtTokenAddress
+} from '../src/price-oracle';
 
 export function createCaveAddedEvent(
   caveId: BigInt,
@@ -361,4 +366,69 @@ export function createRoundsEnteredEvent(
   );
 
   return roundsEnteredEvent;
+}
+
+/**
+ * Mock the contract call to GetRound
+ * @dev Add more parameters to this function as the need evolves
+ */
+export function mockGetRoundCall(caveId: string, roundId: string): void {
+  // Couldn't find a better way to do it that is accepted by the compiler
+  // prettier-ignore
+  const playerIndices = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  const player1Tuple = new ethereum.Tuple(3);
+  player1Tuple[0] = ethereum.Value.fromAddress(
+    Address.fromString('0x0000000000000000000000000000000000000123')
+  );
+  player1Tuple[1] = ethereum.Value.fromBoolean(true);
+  player1Tuple[2] = ethereum.Value.fromBoolean(false);
+
+  const player2Tuple = new ethereum.Tuple(3);
+  player2Tuple[0] = ethereum.Value.fromAddress(
+    Address.fromString('0x0000000000000000000000000000000000000456')
+  );
+  player2Tuple[1] = ethereum.Value.fromBoolean(false);
+  player2Tuple[2] = ethereum.Value.fromBoolean(false);
+  createMockedFunction(
+    Address.fromString('0xa16081f360e3847006db660bae1c6d1b2e17ec2a'),
+    'getRound',
+    'getRound(uint256,uint256):(uint8,uint40,uint40,bytes32,bytes32,uint8[32],(address,bool,bool)[])'
+  )
+    .withArgs([
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromString(caveId)),
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromString(roundId))
+    ])
+    .returns([
+      ethereum.Value.fromSignedBigInt(BigInt.fromI32(4)),
+      ethereum.Value.fromSignedBigInt(BigInt.zero()),
+      ethereum.Value.fromSignedBigInt(BigInt.zero()),
+      ethereum.Value.fromBytes(Bytes.empty()),
+      ethereum.Value.fromBytes(Bytes.empty()),
+      ethereum.Value.fromI32Array(playerIndices),
+      ethereum.Value.fromTupleArray([player1Tuple, player2Tuple])
+    ]);
+}
+
+export function mockPriceOracleCalls(amountToReturn: BigInt): void {
+  createMockedFunction(
+    priceOracleAddress,
+    'getTWAP',
+    'getTWAP(address,uint32):(uint256)'
+  )
+    .withArgs([
+      ethereum.Value.fromAddress(looksTokenAddress),
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(1))
+    ])
+    .returns([ethereum.Value.fromUnsignedBigInt(amountToReturn)]);
+
+  createMockedFunction(
+    priceOracleAddress,
+    'getTWAP',
+    'getTWAP(address,uint32):(uint256)'
+  )
+    .withArgs([
+      ethereum.Value.fromAddress(usdtTokenAddress),
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(1))
+    ])
+    .returns([ethereum.Value.fromUnsignedBigInt(amountToReturn)]);
 }

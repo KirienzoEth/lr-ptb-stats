@@ -31,12 +31,18 @@ export function getRound(
 
 export function createPlayer(playerAddress: string): Player {
   let player = new Player(playerAddress);
+
   player.looksWagered = new BigInt(0);
-  player.ethWagered = new BigInt(0);
   player.looksWon = new BigInt(0);
-  player.ethWon = new BigInt(0);
   player.looksLost = new BigInt(0);
+
+  player.ethWagered = new BigInt(0);
+  player.ethWon = new BigInt(0);
   player.ethLost = new BigInt(0);
+
+  player.usdWon = new BigInt(0);
+  player.usdLost = new BigInt(0);
+
   player.roundsEnteredCount = new BigInt(0);
   player.roundsWonCount = new BigInt(0);
   player.roundsLostCount = new BigInt(0);
@@ -63,7 +69,8 @@ export function getPlayer(
 export function createCave(caveId: string): Cave {
   let cave = new Cave(caveId);
   cave.enterAmount = new BigInt(0);
-  cave.enterCurrency = Address.zero();
+  cave.prizeAmount = new BigInt(0);
+  cave.currency = Address.zero();
   cave.roundDuration = new BigInt(0);
   cave.playersPerRound = 0;
   cave.protocolFeeBp = 0;
@@ -95,6 +102,7 @@ export function createPlayerRound(
   playerRound.cave = caveId;
   playerRound.round = `${caveId}-${roundId}`;
   playerRound.gemsEarned = new BigInt(0);
+  playerRound.usdWagered = new BigInt(0);
   playerRound.save();
 
   return playerRound;

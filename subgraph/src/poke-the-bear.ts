@@ -2,15 +2,8 @@ import { Address, BigInt, log } from '@graphprotocol/graph-ts';
 import {
   CaveAdded as CaveAddedEvent,
   CaveRemoved as CaveRemovedEvent,
-  CommitmentsSubmitted as CommitmentsSubmittedEvent,
-  DepositsRefunded as DepositsRefundedEvent,
-  DepositsRolledOver as DepositsRolledOverEvent,
   PokeTheBear,
-  PrizesClaimed as PrizesClaimedEvent,
-  ProtocolFeeRecipientUpdated as ProtocolFeeRecipientUpdatedEvent,
-  RandomnessRequested as RandomnessRequestedEvent,
   RoundStatusUpdated as RoundStatusUpdatedEvent,
-  RoundsCancelled as RoundsCancelledEvent,
   RoundsEntered as RoundsEnteredEvent
 } from '../generated/PokeTheBear/PokeTheBear';
 import {
@@ -21,14 +14,19 @@ import {
   getRound
 } from './loaders';
 import { RoundStatus } from './enums';
+import { convertEthToUSDT, convertLooksToUSDT } from './price-oracle';
 
 export function handleCaveAdded(event: CaveAddedEvent): void {
   let cave = createCave(event.params.caveId.toString());
   cave.enterAmount = event.params.enterAmount;
-  cave.enterCurrency = event.params.enterCurrency;
+  cave.currency = event.params.enterCurrency;
   cave.roundDuration = event.params.roundDuration;
   cave.playersPerRound = event.params.playersPerRound;
   cave.protocolFeeBp = event.params.protocolFeeBp;
+  cave.prizeAmount = cave.enterAmount
+    .times(BigInt.fromI32(10_000 - cave.protocolFeeBp))
+    .div(BigInt.fromI32(10_000))
+    .div(BigInt.fromI32(cave.playersPerRound - 1));
 
   cave.save();
 }
@@ -69,7 +67,7 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
     player.roundsEnteredCount = player.roundsEnteredCount.plus(
       BigInt.fromI32(1)
     );
-    if (cave.enterCurrency == Address.zero()) {
+    if (cave.currency == Address.zero()) {
       player.ethWagered = player.ethWagered.plus(cave.enterAmount);
     } else {
       player.looksWagered = player.looksWagered.plus(cave.enterAmount);
@@ -107,27 +105,30 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
       if (players[i].isLoser) {
         round.loser = player.id;
         player.roundsLostCount = player.roundsLostCount.plus(BigInt.fromI32(1));
-        if (cave.enterCurrency == Address.zero()) {
+        if (cave.currency == Address.zero()) {
           player.ethLost = player.ethLost.plus(cave.enterAmount);
-        } else {
-          player.looksLost = player.looksLost.plus(cave.enterAmount);
-        }
-        // or else, distribute the prizes to the winning players
-      } else {
-        player.roundsWonCount = player.roundsWonCount.plus(BigInt.fromI32(1));
-        if (cave.enterCurrency == Address.zero()) {
-          player.ethWon = player.ethWon.plus(
-            cave.enterAmount
-              .times(BigInt.fromI32(10_000 - cave.protocolFeeBp))
-              .div(BigInt.fromI32(10_000))
-              .div(BigInt.fromI32(cave.playersPerRound - 1))
+          player.usdLost = player.usdLost.plus(
+            convertEthToUSDT(cave.enterAmount)
           );
         } else {
-          player.looksWon = player.looksWon.plus(
-            cave.enterAmount
-              .times(BigInt.fromI32(10_000 - cave.protocolFeeBp))
-              .div(BigInt.fromI32(10_000))
-              .div(BigInt.fromI32(cave.playersPerRound - 1))
+          player.looksLost = player.looksLost.plus(cave.enterAmount);
+          player.usdLost = player.usdLost.plus(
+            convertLooksToUSDT(cave.enterAmount)
+          );
+        }
+      }
+      // or else, distribute the prizes to the winning players
+      else {
+        player.roundsWonCount = player.roundsWonCount.plus(BigInt.fromI32(1));
+        if (cave.currency == Address.zero()) {
+          player.ethWon = player.ethWon.plus(cave.prizeAmount);
+          player.usdWon = player.usdWon.plus(
+            convertEthToUSDT(cave.prizeAmount)
+          );
+        } else {
+          player.looksWon = player.looksWon.plus(cave.prizeAmount);
+          player.usdWon = player.usdWon.plus(
+            convertLooksToUSDT(cave.prizeAmount)
           );
         }
       }
@@ -153,7 +154,7 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
     for (let i = 0; i < playerRounds.length; i++) {
       const playerRound = playerRounds[i];
       const player = getPlayer(playerRound.player);
-      if (cave.enterCurrency == Address.zero()) {
+      if (cave.currency == Address.zero()) {
         player.ethWagered = player.ethWagered.minus(cave.enterAmount);
       } else {
         player.looksWagered = player.looksWagered.minus(cave.enterAmount);

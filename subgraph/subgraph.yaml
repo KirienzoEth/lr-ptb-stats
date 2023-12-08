@@ -1,4 +1,6 @@
 specVersion: 0.0.5
+description: Stats for LooksRare Poke The Bear game
+repository: https://github.com/KirienzoEth/lr-ptb-stats
 schema:
   file: ./schema.graphql
 dataSources:
@@ -35,9 +37,28 @@ dataSources:
           handler: handleCaveRemoved
         - event: RoundStatusUpdated(uint256,uint256,uint8)
           handler: handleRoundStatusUpdated
-        # Isolate the round cancellation code in 'handleRoundStatusUpdated' to avoid duplicates
-        # - event: RoundsCancelled(uint256,uint256,uint256)
-        #   handler: handleRoundsCancelled
         - event: RoundsEntered(uint256,uint256,uint256,address)
           handler: handleRoundsEntered
+      file: ./src/poke-the-bear.ts
+  - kind: ethereum/contract
+    name: PriceOracle
+    network: mainnet
+    source:
+      address: "0x00000000000A95dBfC66D37F3FC5E597C0b03Daf"
+      abi: PriceOracle
+      # startBlock doesn't matter as we don't index events for this contract
+      startBlock: 18641174
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      abis:
+        - name: PriceOracle
+          file: ./abis/PriceOracle.json
+      # The following settings are useless but required and valid for the subgraph to compile
+      entities:
+        - Foo
+      eventHandlers:
+        - event: CancelOwnershipTransfer()
+          handler: handleCaveAdded
       file: ./src/poke-the-bear.ts

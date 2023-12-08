@@ -3,6 +3,10 @@
     "PokeTheBear": {
       "address": "0x00000000009f22B55D3105e5CfF7D1a6503cF3cE",
       "startBlock": 18641174
+    },
+    "PriceOracle": {
+      "address": "0x00000000000A95dBfC66D37F3FC5E597C0b03Daf",
+      "startBlock": 18641174
     }
   }
 }
