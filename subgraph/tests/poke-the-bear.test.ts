@@ -18,8 +18,9 @@ import {
   createCaveRemovedEvent,
   createRoundStatusUpdatedEvent,
   createRoundsEnteredEvent,
+  mockEthPriceInUSDT,
   mockGetRoundCall,
-  mockPriceOracleCalls
+  mockLooksPriceInETH
 } from './poke-the-bear-utils';
 import { Cave, Player, PlayerRound, Round } from '../generated/schema';
 import { RoundStatus } from '../src/enums';
@@ -359,7 +360,7 @@ describe('handleRoundStatusUpdated', () => {
   test('Should set the loser of the round when status is 4', () => {
     mockGetRoundCall('3', '1');
     // 10 ** 16 => 1ETH = 100 USDT
-    mockPriceOracleCalls(BigInt.fromI32(10).pow(16));
+    mockEthPriceInUSDT(BigInt.fromI32(10).pow(16));
 
     const roundRevealedEvent = createRoundStatusUpdatedEvent(
       BigInt.fromI32(3),
@@ -383,8 +384,8 @@ describe('handleRoundStatusUpdated', () => {
     assert.bigIntEquals(player1.ethWon, BigInt.zero());
     assert.bigIntEquals(player1.ethLost, cave.enterAmount);
     assert.bigIntEquals(
-      player1.usdLost,
-      cave.enterAmount.times(BigInt.fromI32(100))
+      cave.enterAmount.times(BigInt.fromI32(100)),
+      player1.usdLost
     );
     assert.bigIntEquals(player1.looksWon, BigInt.zero());
     assert.bigIntEquals(player1.looksLost, BigInt.zero());
@@ -396,15 +397,16 @@ describe('handleRoundStatusUpdated', () => {
     assert.bigIntEquals(player2.ethLost, BigInt.zero());
     assert.bigIntEquals(player2.ethWon, cave.prizeAmount);
     assert.bigIntEquals(
-      player2.usdWon,
-      cave.prizeAmount.times(BigInt.fromI32(100))
+      cave.prizeAmount.times(BigInt.fromI32(100)),
+      player2.usdWon
     );
   });
   test('Should set the loser of the round when status is 4 and cave is in looks', () => {
     mockGetRoundCall('4', '1');
-    // 10 ** 16 => 1ETH = 100 USDT / 1ETH = 100 LOOKS
-    // 10 ** 16 => 1LOOKS = 1USDT
-    mockPriceOracleCalls(BigInt.fromI32(10).pow(14));
+    // 10 ** 15 => 1ETH = 1000 USDT
+    mockEthPriceInUSDT(BigInt.fromI32(10).pow(15));
+    // 2 * (10 ** 16) => 1LOOKS = 0.02ETH = 20USDT
+    mockLooksPriceInETH(BigInt.fromI32(2).times(BigInt.fromI32(10).pow(16)));
 
     const roundRevealedEvent = createRoundStatusUpdatedEvent(
       BigInt.fromI32(4),
@@ -427,9 +429,12 @@ describe('handleRoundStatusUpdated', () => {
     assert.bigIntEquals(player1.roundsWonCount, BigInt.zero());
     assert.bigIntEquals(player1.ethWon, BigInt.zero());
     assert.bigIntEquals(player1.ethLost, BigInt.zero());
-    assert.bigIntEquals(cave.enterAmount, player1.usdLost);
     assert.bigIntEquals(player1.looksWon, BigInt.zero());
     assert.bigIntEquals(player1.looksLost, cave.enterAmount);
+    assert.bigIntEquals(
+      cave.enterAmount.times(BigInt.fromI32(20)),
+      player1.usdLost
+    );
     const player2 = getPlayer('0x0000000000000000000000000000000000000456');
     assert.bigIntEquals(player2.roundsLostCount, BigInt.zero());
     assert.bigIntEquals(player2.roundsWonCount, BigInt.fromI32(1));
@@ -437,6 +442,9 @@ describe('handleRoundStatusUpdated', () => {
     assert.bigIntEquals(player2.looksLost, BigInt.zero());
     assert.bigIntEquals(player2.ethLost, BigInt.zero());
     assert.bigIntEquals(player2.ethWon, BigInt.zero());
-    assert.bigIntEquals(cave.prizeAmount, player2.usdWon);
+    assert.bigIntEquals(
+      cave.prizeAmount.times(BigInt.fromI32(20)),
+      player2.usdWon
+    );
   });
 });

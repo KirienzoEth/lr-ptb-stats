@@ -17,6 +17,7 @@ import {
   RoundsEntered
 } from '../generated/PokeTheBear/PokeTheBear';
 import {
+  ethUsdtUniV2PoolAddress,
   looksTokenAddress,
   priceOracleAddress,
   usdtTokenAddress
@@ -409,7 +410,7 @@ export function mockGetRoundCall(caveId: string, roundId: string): void {
     ]);
 }
 
-export function mockPriceOracleCalls(amountToReturn: BigInt): void {
+export function mockLooksPriceInETH(amountToReturn: BigInt): void {
   createMockedFunction(
     priceOracleAddress,
     'getTWAP',
@@ -420,15 +421,17 @@ export function mockPriceOracleCalls(amountToReturn: BigInt): void {
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(1))
     ])
     .returns([ethereum.Value.fromUnsignedBigInt(amountToReturn)]);
+}
 
+export function mockEthPriceInUSDT(amountToReturn: BigInt): void {
   createMockedFunction(
-    priceOracleAddress,
-    'getTWAP',
-    'getTWAP(address,uint32):(uint256)'
-  )
-    .withArgs([
-      ethereum.Value.fromAddress(usdtTokenAddress),
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(1))
-    ])
-    .returns([ethereum.Value.fromUnsignedBigInt(amountToReturn)]);
+    ethUsdtUniV2PoolAddress,
+    'getReserves',
+    'getReserves():(uint112,uint112,uint32)'
+  ).returns([
+    ethereum.Value.fromUnsignedBigInt(amountToReturn),
+    // 1 USDT in the pool so the price of ETH == amountToReturn
+    ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(10).pow(6)),
+    ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(1))
+  ]);
 }
