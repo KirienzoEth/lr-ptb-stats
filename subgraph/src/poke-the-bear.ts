@@ -39,7 +39,6 @@ export function handleCaveRemoved(event: CaveRemovedEvent): void {
   cave.save();
 }
 
-// TODO estimate the oracle fees every time a VRF call is made https://docs.chain.link/vrf/v2/estimating-costs?network=ethereum-mainnet
 export function handleRoundsEntered(event: RoundsEnteredEvent): void {
   let cave = getCave(event.params.caveId.toString());
 
@@ -49,6 +48,8 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
   let maxRoundId = event.params.startingRoundId.plus(
     event.params.numberOfRounds
   );
+
+  // Create a round for each round entered starting from startingRoundId
   for (
     let roundId = event.params.startingRoundId;
     roundId.lt(maxRoundId);
@@ -59,7 +60,11 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
 
     // A player cannot enter a round multiple times
     // So we can create this entity every time a round is entered
-    createPlayerRound(player.id, cave.id, roundId.toString());
+    const playerRound = createPlayerRound(
+      player.id,
+      cave.id,
+      roundId.toString()
+    );
 
     round.playersCount = round.playersCount.plus(BigInt.fromI32(1));
     round.save();
@@ -67,11 +72,19 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
     player.roundsEnteredCount = player.roundsEnteredCount.plus(
       BigInt.fromI32(1)
     );
+
+    let usdWagered = BigInt.zero();
     if (cave.currency == Address.zero()) {
       player.ethWagered = player.ethWagered.plus(cave.enterAmount);
+      usdWagered = convertEthToUSDT(cave.enterAmount);
     } else {
       player.looksWagered = player.looksWagered.plus(cave.enterAmount);
+      usdWagered = convertLooksToUSDT(cave.enterAmount);
     }
+
+    player.usdWagered = usdWagered;
+    playerRound.usdWagered = usdWagered;
+    playerRound.save();
   }
 
   player.save();
@@ -98,38 +111,37 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
       event.params.caveId,
       event.params.roundId
     );
-    let players = roundData.value6;
-    for (let i = 0; i < players.length; i++) {
-      const player = getPlayer(players[i].addr.toHexString());
+    let loserIndex = roundData.value6.findIndex(player => player.isLoser);
+    let loserAddress = roundData.value6[loserIndex].addr.toHexString();
+    let playerRounds = round.players.load();
+    for (let i = 0; i < playerRounds.length; i++) {
+      const playerRound = playerRounds[i];
+      const player = getPlayer(playerRound.player);
       // If a loser has been selected save it
-      if (players[i].isLoser) {
+      if (player.id == loserAddress) {
         round.loser = player.id;
+        player.usdLost = player.usdLost.plus(playerRound.usdWagered);
+        player.usdPnL = player.usdPnL.minus(playerRound.usdWagered);
         player.roundsLostCount = player.roundsLostCount.plus(BigInt.fromI32(1));
         if (cave.currency == Address.zero()) {
           player.ethLost = player.ethLost.plus(cave.enterAmount);
-          player.usdLost = player.usdLost.plus(
-            convertEthToUSDT(cave.enterAmount)
-          );
         } else {
           player.looksLost = player.looksLost.plus(cave.enterAmount);
-          player.usdLost = player.usdLost.plus(
-            convertLooksToUSDT(cave.enterAmount)
-          );
         }
       }
       // or else, distribute the prizes to the winning players
       else {
         player.roundsWonCount = player.roundsWonCount.plus(BigInt.fromI32(1));
         if (cave.currency == Address.zero()) {
+          const usdToWin = convertEthToUSDT(cave.prizeAmount);
           player.ethWon = player.ethWon.plus(cave.prizeAmount);
-          player.usdWon = player.usdWon.plus(
-            convertEthToUSDT(cave.prizeAmount)
-          );
+          player.usdWon = player.usdWon.plus(usdToWin);
+          player.usdPnL = player.usdPnL.plus(usdToWin);
         } else {
+          const usdToWin = convertLooksToUSDT(cave.prizeAmount);
           player.looksWon = player.looksWon.plus(cave.prizeAmount);
-          player.usdWon = player.usdWon.plus(
-            convertLooksToUSDT(cave.prizeAmount)
-          );
+          player.usdWon = player.usdWon.plus(usdToWin);
+          player.usdPnL = player.usdPnL.plus(usdToWin);
         }
       }
 
@@ -154,6 +166,7 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
     for (let i = 0; i < playerRounds.length; i++) {
       const playerRound = playerRounds[i];
       const player = getPlayer(playerRound.player);
+      player.usdWagered = player.usdWagered.minus(playerRound.usdWagered);
       if (cave.currency == Address.zero()) {
         player.ethWagered = player.ethWagered.minus(cave.enterAmount);
       } else {

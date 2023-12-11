@@ -40,6 +40,8 @@ export function createPlayer(playerAddress: string): Player {
   player.ethWon = new BigInt(0);
   player.ethLost = new BigInt(0);
 
+  player.usdPnL = new BigInt(0);
+  player.usdWagered = new BigInt(0);
   player.usdWon = new BigInt(0);
   player.usdLost = new BigInt(0);
 

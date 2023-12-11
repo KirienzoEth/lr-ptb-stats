@@ -36,12 +36,15 @@ type Player @entity {
   id: String!
   looksWagered: BigInt!
   ethWagered: BigInt!
+  usdWagered: BigInt!
   looksWon: BigInt!
   ethWon: BigInt!
   usdWon: BigInt!
   looksLost: BigInt!
   ethLost: BigInt!
   usdLost: BigInt!
+  "How much, in USD, is the player in profit/deficit"
+  usdPnL: BigInt!
   roundsWonCount: BigInt!
   roundsLostCount: BigInt!
   roundsEnteredCount: BigInt!
