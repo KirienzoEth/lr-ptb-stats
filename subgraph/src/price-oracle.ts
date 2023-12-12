@@ -26,6 +26,7 @@ export function convertLooksToUSDT(amountInWei: BigInt): BigInt {
     looksTokenAddress,
     BigInt.fromI32(1)
   );
+
   return convertEthToUSDT(looksPriceInETH.times(amountInWei)).div(
     BigInt.fromI32(10).pow(18)
   );

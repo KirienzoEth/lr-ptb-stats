@@ -138,6 +138,7 @@ describe('handleRoundsEntered', () => {
 
     assert.entityCount('Player', 1);
     let player = Player.load('0x0000000000000000000000000000000000000123')!;
+    assert.bigIntEquals(player.usdWagered, BigInt.fromI32(200000000));
     assert.bigIntEquals(player.looksWagered, BigInt.fromI32(10000000));
     assert.bigIntEquals(player.ethWagered, BigInt.zero());
     assert.bigIntEquals(player.ethWon, BigInt.zero());
@@ -171,6 +172,7 @@ describe('handleRoundsEntered', () => {
     assert.entityCount('Player', 1);
     let player = Player.load('0x0000000000000000000000000000000000000321')!;
     assert.bigIntEquals(player.looksWagered, BigInt.zero());
+    assert.bigIntEquals(player.usdWagered, BigInt.fromString('50000000000'));
     assert.bigIntEquals(player.ethWagered, BigInt.fromI32(50000000));
 
     let playerRound = PlayerRound.load(
@@ -192,8 +194,16 @@ describe('handleRoundsEntered', () => {
 
     assert.entityCount('Round', 3);
     assert.entityCount('Player', 1);
+    const caveEntryFee = getCave('4').enterAmount;
     let player = Player.load('0x0000000000000000000000000000000000000321')!;
-    assert.bigIntEquals(player.ethWagered, BigInt.fromI32(150000000));
+    assert.bigIntEquals(
+      player.ethWagered,
+      caveEntryFee.times(BigInt.fromI32(3))
+    );
+    assert.bigIntEquals(
+      player.usdWagered,
+      caveEntryFee.times(BigInt.fromI32(3 * 1000))
+    );
     assert.bigIntEquals(player.roundsEnteredCount, BigInt.fromI32(3));
 
     assert.entityCount('PlayerRound', 3);

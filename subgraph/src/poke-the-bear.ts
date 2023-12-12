@@ -82,7 +82,7 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
       usdWagered = convertLooksToUSDT(cave.enterAmount);
     }
 
-    player.usdWagered = usdWagered;
+    player.usdWagered = player.usdWagered.plus(usdWagered);
     playerRound.usdWagered = usdWagered;
     playerRound.save();
   }
