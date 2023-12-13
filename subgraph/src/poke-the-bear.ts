@@ -3,6 +3,7 @@ import {
   CaveAdded as CaveAddedEvent,
   CaveRemoved as CaveRemovedEvent,
   PokeTheBear,
+  PrizesClaimed,
   RoundStatusUpdated as RoundStatusUpdatedEvent,
   RoundsEntered as RoundsEnteredEvent
 } from '../generated/PokeTheBear/PokeTheBear';
@@ -188,6 +189,18 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
   }
 
   round.save();
+}
+
+export function handlePrizesClaimed(event: PrizesClaimed): void {
+  const player = getPlayer(event.params.player.toHexString());
+  const feesPaidInETH = event.receipt!.gasUsed.times(
+    event.transaction.gasPrice
+  );
+  const feesPaidInUSD = convertEthToUSDT(feesPaidInETH);
+
+  player.feesPaidInETH = player.feesPaidInETH.plus(feesPaidInETH);
+  player.feesPaidInUSD = player.feesPaidInUSD.plus(feesPaidInUSD);
+  player.save();
 }
 /*
 export function handleCommitmentsSubmitted(

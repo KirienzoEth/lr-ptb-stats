@@ -43,4 +43,6 @@ dataSources:
           handler: handleRoundStatusUpdated
         - event: RoundsEntered(uint256,uint256,uint256,address)
           handler: handleRoundsEntered
+        - event: PrizesClaimed((uint256,uint256[])[],address)
+          handler: handlePrizesClaimed
       file: ./src/poke-the-bear.ts
