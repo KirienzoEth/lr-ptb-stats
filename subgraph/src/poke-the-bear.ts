@@ -16,6 +16,7 @@ import {
 } from './loaders';
 import { RoundStatus } from './enums';
 import { convertEthToUSDT, convertLooksToUSDT } from './price-oracle';
+import { updatePlayerENSName } from './ens';
 
 export function handleCaveAdded(event: CaveAddedEvent): void {
   let cave = createCave(event.params.caveId.toString());
@@ -45,6 +46,7 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
 
   // Create player if it does not exist yet
   let player = getPlayer(event.params.player.toHexString(), true);
+  updatePlayerENSName(player);
 
   let maxRoundId = event.params.startingRoundId.plus(
     event.params.numberOfRounds

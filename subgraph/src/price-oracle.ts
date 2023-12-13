@@ -1,4 +1,4 @@
-import { Address, BigInt, log } from '@graphprotocol/graph-ts';
+import { Address, BigInt } from '@graphprotocol/graph-ts';
 import { PriceOracle } from '../generated/PokeTheBear/PriceOracle';
 import { UniV2Pool } from '../generated/PokeTheBear/UniV2Pool';
 

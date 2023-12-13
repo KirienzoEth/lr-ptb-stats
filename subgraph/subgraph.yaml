@@ -34,6 +34,8 @@ dataSources:
           file: ./abis/PriceOracle.json
         - name: UniV2Pool
           file: ./abis/UniV2Pool.json
+        - name: ENSReverseLookup
+          file: ./abis/ENSReverseLookup.json
       eventHandlers:
         - event: CaveAdded(uint256,uint256,address,uint40,uint8,uint16)
           handler: handleCaveAdded

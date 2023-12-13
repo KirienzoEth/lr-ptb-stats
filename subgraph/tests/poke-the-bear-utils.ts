@@ -22,6 +22,7 @@ import {
   priceOracleAddress,
   usdtTokenAddress
 } from '../src/price-oracle';
+import { ensReverseRecordsAddress } from '../src/ens';
 
 export function createCaveAddedEvent(
   caveId: BigInt,
@@ -434,4 +435,19 @@ export function mockEthPriceInUSDT(amountToReturn: BigInt): void {
     ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(10).pow(6)),
     ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(1))
   ]);
+}
+
+export function mockENSReverseLookup(
+  playerAddress: string,
+  playerName: string
+): void {
+  createMockedFunction(
+    ensReverseRecordsAddress,
+    'getNames',
+    'getNames(address[]):(string[])'
+  )
+    .withArgs([
+      ethereum.Value.fromAddressArray([Address.fromString(playerAddress)])
+    ])
+    .returns([ethereum.Value.fromStringArray([playerName])]);
 }

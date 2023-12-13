@@ -34,6 +34,7 @@ type Round @entity {
 type Player @entity {
   "The player's address"
   id: String!
+  ensName: String
   looksWagered: BigInt!
   ethWagered: BigInt!
   usdWagered: BigInt!

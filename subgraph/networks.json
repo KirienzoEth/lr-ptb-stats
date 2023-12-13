@@ -7,6 +7,9 @@
     "PriceOracle": {
       "address": "0x00000000000A95dBfC66D37F3FC5E597C0b03Daf",
       "startBlock": 18641174
+    },
+    "ENSReverseLookup": {
+      "address": "0x3671aE578E63FdF66ad4F3E12CC0c0d71Ac7510C"
     }
   }
 }

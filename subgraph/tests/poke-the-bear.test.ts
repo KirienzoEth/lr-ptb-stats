@@ -21,25 +21,30 @@ import {
   createPrizesClaimedEvent,
   createRoundStatusUpdatedEvent,
   createRoundsEnteredEvent,
+  mockENSReverseLookup,
   mockEthPriceInUSDT,
   mockGetRoundCall,
   mockLooksPriceInETH
 } from './poke-the-bear-utils';
 import { Cave, Player, PlayerRound, Round } from '../generated/schema';
 import { RoundStatus } from '../src/enums';
-import {
-  createCave,
-  createPlayer,
-  createPlayerRound,
-  getCave,
-  getPlayer,
-  getPlayerRound,
-  getRound
-} from '../src/loaders';
+import { createCave, getCave, getPlayer, getRound } from '../src/loaders';
 import { looksTokenAddress } from '../src/price-oracle';
 
 afterEach(() => {
   clearStore();
+});
+beforeEach(() => {
+  // 10 ** 15 => 1ETH = 1000 USDT
+  mockEthPriceInUSDT(BigInt.fromI32(10).pow(15));
+  // 2 * (10 ** 16) => 1LOOKS = 0.02ETH = 20USDT
+  mockLooksPriceInETH(BigInt.fromI32(2).times(BigInt.fromI32(10).pow(16)));
+  mockENSReverseLookup('0x0000000000000000000000000000000000000123', '');
+  mockENSReverseLookup('0x0000000000000000000000000000000000000456', '');
+  mockENSReverseLookup('0x0000000000000000000000000000000000000789', '');
+  mockENSReverseLookup('0x0000000000000000000000000000000000000321', '');
+  mockENSReverseLookup('0x0000000000000000000000000000000000000654', '');
+  mockENSReverseLookup('0x0000000000000000000000000000000000000987', '');
 });
 
 describe('handleCaveAdded', () => {
@@ -118,10 +123,6 @@ describe('handleRoundsEntered', () => {
       50
     );
     handleCaveAdded(ethCaveAddedEvent);
-    // 10 ** 15 => 1ETH = 1000 USDT
-    mockEthPriceInUSDT(BigInt.fromI32(10).pow(15));
-    // 2 * (10 ** 16) => 1LOOKS = 0.02ETH = 20USDT
-    mockLooksPriceInETH(BigInt.fromI32(2).times(BigInt.fromI32(10).pow(16)));
   });
   test('Should create a new round, player and playerRound', () => {
     let newRoundsEnteredEvent = createRoundsEnteredEvent(
@@ -171,6 +172,76 @@ describe('handleRoundsEntered', () => {
       playerRound.feesPaidInUSD,
       BigInt.fromI64(15_000_000_000)
     );
+  });
+  describe('Player ENS name', () => {
+    test('Should update the ENS name of the player', () => {
+      const playerAddress = '0x0000000000000000000000000000000000000123';
+      mockENSReverseLookup(playerAddress, 'test.eth');
+      let newRoundsEnteredEvent = createRoundsEnteredEvent(
+        BigInt.fromI32(3),
+        BigInt.fromI32(1),
+        BigInt.fromI32(1),
+        Address.fromString(playerAddress)
+      );
+      handleRoundsEntered(newRoundsEnteredEvent);
+
+      let player = Player.load(playerAddress)!;
+      assert.assertNotNull(player.ensName);
+      assert.stringEquals(player.ensName!, 'test.eth');
+
+      mockENSReverseLookup(playerAddress, 'different.eth');
+      newRoundsEnteredEvent = createRoundsEnteredEvent(
+        BigInt.fromI32(3),
+        BigInt.fromI32(2),
+        BigInt.fromI32(1),
+        Address.fromString(playerAddress)
+      );
+      handleRoundsEntered(newRoundsEnteredEvent);
+
+      player = Player.load(playerAddress)!;
+      assert.stringEquals(player.ensName!, 'different.eth');
+    });
+    test('Should not update the ENS name of the player if reverse lookup returns an empty string', () => {
+      const playerAddress = '0x0000000000000000000000000000000000000123';
+      mockENSReverseLookup(playerAddress, '');
+      let newRoundsEnteredEvent = createRoundsEnteredEvent(
+        BigInt.fromI32(3),
+        BigInt.fromI32(1),
+        BigInt.fromI32(1),
+        Address.fromString(playerAddress)
+      );
+      handleRoundsEntered(newRoundsEnteredEvent);
+
+      const player = Player.load(playerAddress)!;
+      assert.assertNull(player.ensName);
+    });
+    test('Should null the ENS name of a player if reverse lookup returns an empty string', () => {
+      const playerAddress = '0x0000000000000000000000000000000000000123';
+      mockENSReverseLookup(playerAddress, 'test.eth');
+      let newRoundsEnteredEvent = createRoundsEnteredEvent(
+        BigInt.fromI32(3),
+        BigInt.fromI32(1),
+        BigInt.fromI32(1),
+        Address.fromString(playerAddress)
+      );
+      handleRoundsEntered(newRoundsEnteredEvent);
+
+      let player = Player.load(playerAddress)!;
+      assert.assertNotNull(player.ensName);
+      assert.stringEquals(player.ensName!, 'test.eth');
+
+      mockENSReverseLookup(playerAddress, '');
+      newRoundsEnteredEvent = createRoundsEnteredEvent(
+        BigInt.fromI32(3),
+        BigInt.fromI32(2),
+        BigInt.fromI32(1),
+        Address.fromString(playerAddress)
+      );
+      handleRoundsEntered(newRoundsEnteredEvent);
+
+      player = Player.load(playerAddress)!;
+      assert.assertNull(player.ensName);
+    });
   });
   test('Should increase amount of eth wagered if cave\'s currency is the 0 address', () => {
     let newRoundsEnteredEvent = createRoundsEnteredEvent(
@@ -388,11 +459,6 @@ describe('handleRoundsEntered', () => {
 });
 describe('handleRoundStatusUpdated', () => {
   beforeEach(() => {
-    // 10 ** 15 => 1ETH = 1000 USDT
-    mockEthPriceInUSDT(BigInt.fromI32(10).pow(15));
-    // 2 * (10 ** 16) => 1LOOKS = 0.02ETH = 20USDT
-    mockLooksPriceInETH(BigInt.fromI32(2).times(BigInt.fromI32(10).pow(16)));
-
     // ETH cave
     const ethCave = createCave('3');
     ethCave.enterAmount = BigInt.fromI32(10_000_000);
@@ -699,10 +765,6 @@ describe('handleRoundStatusUpdated', () => {
 describe('handlePrizesClaimed', () => {
   beforeEach(() => {
     mockGetRoundCall('3', '1');
-    // 10 ** 15 => 1ETH = 1000 USDT
-    mockEthPriceInUSDT(BigInt.fromI32(10).pow(15));
-    // 2 * (10 ** 16) => 1LOOKS = 0.02ETH = 20USDT
-    mockLooksPriceInETH(BigInt.fromI32(2).times(BigInt.fromI32(10).pow(16)));
 
     // ETH cave
     const ethCave = createCave('3');
