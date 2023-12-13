@@ -9,48 +9,68 @@ export class PTBSubgraphAPI {
     this.httpClient = httpClient;
   }
 
-  async getPlayers(): Promise<Player[]> {
-    const body = {
-      query: `{
-        players(orderBy: usdWagered, orderDirection: desc, first: 20) {
-          id,
-          usdPnL,
-          usdWagered,
-          looksWagered,
-          looksWon,
-          looksLost,
-          ethWagered,
-          ethWon,
-          ethLost,
-          feesPaidInETH,
-          feesPaidInUSD,
-          roundsEnteredCount,
-          roundsWonCount,
-          roundsLostCount,
-        }
-      }`,
+  private parseRawPlayerData(rawPlayerData: GQLPlayer): Player {
+    return {
+      address: rawPlayerData.id,
+      ensName: rawPlayerData.ensName,
+      looksWagered: BigInt(rawPlayerData.looksWagered ?? 0),
+      ethWagered: BigInt(rawPlayerData.ethWagered ?? 0),
+      usdWagered: BigInt(rawPlayerData.usdWagered ?? 0),
+      looksWon: BigInt(rawPlayerData.looksWon ?? 0),
+      ethWon: BigInt(rawPlayerData.ethWon ?? 0),
+      usdWon: BigInt(rawPlayerData.usdWon ?? 0),
+      looksLost: BigInt(rawPlayerData.looksLost ?? 0),
+      ethLost: BigInt(rawPlayerData.ethLost ?? 0),
+      usdLost: BigInt(rawPlayerData.usdLost ?? 0),
+      usdPnL: BigInt(rawPlayerData.usdPnL ?? 0),
+      feesPaidInETH: BigInt(rawPlayerData.feesPaidInETH ?? 0),
+      feesPaidInUSD: BigInt(rawPlayerData.feesPaidInUSD ?? 0),
+      roundsWonCount: BigInt(rawPlayerData.roundsWonCount ?? 0),
+      roundsLostCount: BigInt(rawPlayerData.roundsLostCount ?? 0),
+      roundsEnteredCount: BigInt(rawPlayerData.roundsEnteredCount ?? 0),
     };
+  }
 
+  async getPlayers(addresses: string[] = []): Promise<Player[]> {
+    const filter: GQLPlayerFilter = {};
+    if (addresses.length > 0) {
+      filter['id_in'] = addresses.map((address) => address.toLowerCase());
+    }
+
+    const body = {
+      query: `
+        query GetPlayers($filter: Player_filter!) {
+          players(
+            where: $filter
+            orderBy: usdWagered
+            orderDirection: desc
+            first: 20
+          ) {
+            id
+            ensName
+            usdPnL
+            usdWagered
+            looksWagered
+            looksWon
+            looksLost
+            ethWagered
+            ethWon
+            ethLost
+            feesPaidInETH
+            feesPaidInUSD
+            roundsEnteredCount
+            roundsWonCount
+            roundsLostCount
+          }
+        }
+      `,
+      variables: {
+        filter,
+      },
+    };
     const data = await this.httpClient.post(this.url, body);
-    return data.data.players.map((player: GQLPlayer) => {
-      return {
-        address: player.id,
-        looksWagered: BigInt(player.looksWagered ?? 0),
-        ethWagered: BigInt(player.ethWagered ?? 0),
-        usdWagered: BigInt(player.usdWagered ?? 0),
-        looksWon: BigInt(player.looksWon ?? 0),
-        ethWon: BigInt(player.ethWon ?? 0),
-        usdWon: BigInt(player.usdWon ?? 0),
-        looksLost: BigInt(player.looksLost ?? 0),
-        ethLost: BigInt(player.ethLost ?? 0),
-        usdLost: BigInt(player.usdLost ?? 0),
-        usdPnL: BigInt(player.usdPnL ?? 0),
-        feesPaidInETH: BigInt(player.feesPaidInETH ?? 0),
-        feesPaidInUSD: BigInt(player.feesPaidInUSD ?? 0),
-        roundsWonCount: BigInt(player.roundsWonCount ?? 0),
-        roundsLostCount: BigInt(player.roundsLostCount ?? 0),
-        roundsEnteredCount: BigInt(player.roundsEnteredCount ?? 0),
-      } as Player;
-    });
+    return data.data.players.map(
+      (player: GQLPlayer): Player => this.parseRawPlayerData(player)
+    );
   }
 }

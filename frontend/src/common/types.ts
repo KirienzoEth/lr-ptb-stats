@@ -1,5 +1,6 @@
 interface Player {
   address: string;
+  ensName: string;
   looksWagered: bigint;
   ethWagered: bigint;
   usdWagered: bigint;
@@ -19,6 +20,7 @@ interface Player {
 
 interface GQLPlayer {
   id: string;
+  ensName: string;
   looksWagered: string;
   ethWagered: string;
   usdWagered: string;
@@ -34,4 +36,8 @@ interface GQLPlayer {
   roundsWonCount: string;
   roundsLostCount: string;
   roundsEnteredCount: string;
+}
+
+interface GQLPlayerFilter {
+  id_in?: string[];
 }

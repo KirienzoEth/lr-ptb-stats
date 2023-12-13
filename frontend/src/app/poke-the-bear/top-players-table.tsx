@@ -9,18 +9,9 @@ import {
   TableCaption,
   TableContainer,
   Image,
-  Grid,
-  GridItem,
   Flex,
 } from '@chakra-ui/react';
-import { formatEther } from 'viem';
-
-function formatTokenAmount(amount: bigint, fractionDigits = 2) {
-  return (+formatEther(amount)).toLocaleString(undefined, {
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  });
-}
+import { formatTokenAmount } from '../utils';
 
 export default async function Page() {
   const topPlayers = await ptbSubgraphAPI.getPlayers();
@@ -50,7 +41,7 @@ export default async function Page() {
         <Tbody>
           {topPlayers.map((player) => (
             <Tr key={player.address}>
-              <Td>{player.address}</Td>
+              <Td>{player.ensName ?? player.address}</Td>
               <Td>${formatTokenAmount(player.usdWagered)}</Td>
               <Td textAlign="right">
                 <Flex alignItems="center">
@@ -105,7 +96,11 @@ export default async function Page() {
               <Td
                 textAlign="right"
                 fontWeight="bold"
-                color={player.usdPnL < 0 ? 'red.500' : 'green.500'}
+                color={
+                  player.usdPnL - player.feesPaidInUSD < 0
+                    ? 'red.500'
+                    : 'green.500'
+                }
               >
                 ${formatTokenAmount(player.usdPnL - player.feesPaidInUSD)}
               </Td>
