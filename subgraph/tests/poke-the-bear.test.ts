@@ -4,7 +4,8 @@ import {
   test,
   clearStore,
   beforeEach,
-  afterEach
+  afterEach,
+  newMockEvent
 } from 'matchstick-as/assembly/index';
 import { BigInt, Address, log, ethereum, Bytes } from '@graphprotocol/graph-ts';
 import {
@@ -423,6 +424,8 @@ describe('handleRoundStatusUpdated', () => {
       BigInt.fromI32(1),
       Address.fromString(player1Address)
     );
+    roundEnteredEvent.receipt!.gasUsed = BigInt.fromI32(150_000);
+    roundEnteredEvent.transaction.gasPrice = BigInt.fromI32(100);
     handleRoundsEntered(roundEnteredEvent);
 
     roundEnteredEvent = createRoundsEnteredEvent(
@@ -457,6 +460,8 @@ describe('handleRoundStatusUpdated', () => {
     assert.bigIntEquals(player1.usdLost, playerRounds[0].usdWagered);
     assert.bigIntEquals(player1.looksWon, BigInt.zero());
     assert.bigIntEquals(player1.looksLost, BigInt.zero());
+    assert.bigIntEquals(player1.feesPaidInETH, BigInt.fromI32(15_000_000));
+    assert.bigIntEquals(player1.feesPaidInUSD, BigInt.fromI64(15_000_000_000));
     const player2 = getPlayer(player2Address);
     assert.bigIntEquals(player2.roundsLostCount, BigInt.zero());
     assert.bigIntEquals(player2.roundsWonCount, BigInt.fromI32(1));

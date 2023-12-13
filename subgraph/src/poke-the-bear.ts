@@ -49,6 +49,15 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
     event.params.numberOfRounds
   );
 
+  // Save gas fees paid by the player to enter the round
+  const feesPaidInETH = event.receipt!.gasUsed.times(
+    event.transaction.gasPrice
+  );
+  const feesPaidInUSD = convertEthToUSDT(feesPaidInETH);
+
+  player.feesPaidInETH = player.feesPaidInETH.plus(feesPaidInETH);
+  player.feesPaidInUSD = player.feesPaidInUSD.plus(feesPaidInUSD);
+
   // Create a round for each round entered starting from startingRoundId
   for (
     let roundId = event.params.startingRoundId;
@@ -84,6 +93,8 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
 
     player.usdWagered = player.usdWagered.plus(usdWagered);
     playerRound.usdWagered = usdWagered;
+    playerRound.feesPaidInETH = feesPaidInETH;
+    playerRound.feesPaidInUSD = feesPaidInUSD;
     playerRound.save();
   }
 

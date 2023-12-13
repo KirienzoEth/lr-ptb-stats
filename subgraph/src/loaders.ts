@@ -32,6 +32,9 @@ export function getRound(
 export function createPlayer(playerAddress: string): Player {
   let player = new Player(playerAddress);
 
+  player.feesPaidInETH = new BigInt(0);
+  player.feesPaidInUSD = new BigInt(0);
+
   player.looksWagered = new BigInt(0);
   player.looksWon = new BigInt(0);
   player.looksLost = new BigInt(0);
@@ -105,6 +108,8 @@ export function createPlayerRound(
   playerRound.round = `${caveId}-${roundId}`;
   playerRound.gemsEarned = new BigInt(0);
   playerRound.usdWagered = new BigInt(0);
+  playerRound.feesPaidInETH = new BigInt(0);
+  playerRound.feesPaidInUSD = new BigInt(0);
   playerRound.save();
 
   return playerRound;

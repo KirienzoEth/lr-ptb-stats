@@ -45,6 +45,9 @@ type Player @entity {
   usdLost: BigInt!
   "How much, in USD, is the player in profit/deficit"
   usdPnL: BigInt!
+  "Network fees paid by the player to participate in rounds"
+  feesPaidInETH: BigInt!
+  feesPaidInUSD: BigInt!
   roundsWonCount: BigInt!
   roundsLostCount: BigInt!
   roundsEnteredCount: BigInt!
@@ -57,8 +60,11 @@ type PlayerRound @entity {
   player: Player!
   "Price in USD of the tokens ganbled in this round"
   usdWagered: BigInt!
+  "Network fees paid to participate in this round. If several rounds are entered in the same transaction, they will share the same fees amount"
+  feesPaidInETH: BigInt!
+  feesPaidInUSD: BigInt!
   cave: Cave!
   round: Round!
   "Estimates of the Gems the player earned by completing the round"
-  gemsEarned: BigInt! # uint256
+  gemsEarned: BigInt!
 }
