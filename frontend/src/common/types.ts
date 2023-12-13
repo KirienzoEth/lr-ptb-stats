@@ -10,6 +10,8 @@ interface Player {
   ethLost: bigint;
   usdLost: bigint;
   usdPnL: bigint;
+  feesPaidInETH: bigint;
+  feesPaidInUSD: bigint;
   roundsWonCount: bigint;
   roundsLostCount: bigint;
   roundsEnteredCount: bigint;
@@ -27,6 +29,8 @@ interface GQLPlayer {
   ethLost: string;
   usdLost: string;
   usdPnL: string;
+  feesPaidInETH: string;
+  feesPaidInUSD: string;
   roundsWonCount: string;
   roundsLostCount: string;
   roundsEnteredCount: string;

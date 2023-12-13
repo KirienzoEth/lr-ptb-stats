@@ -42,6 +42,7 @@ export default async function Page() {
             <Th>USD Wagered</Th>
             <Th>Looks wagered</Th>
             <Th>ETH wagered</Th>
+            <Th>Gas paid</Th>
             <Th>Rounds played</Th>
             <Th>PnL</Th>
           </Tr>
@@ -79,6 +80,17 @@ export default async function Page() {
                   </div>
                 </Flex>
               </Td>
+              <Td textAlign="left">
+                <Flex alignItems="center">
+                  <Image src="/ethereum.webp" width={6} />
+                  <div style={lossStyle}>
+                    -{formatTokenAmount(player.feesPaidInETH, 2)}
+                  </div>
+                </Flex>
+                <div style={lossStyle}>
+                  -${formatTokenAmount(player.feesPaidInUSD, 2)}
+                </div>
+              </Td>
               <Td textAlign="right">
                 <div>
                   <div>{+player.roundsEnteredCount.toLocaleString()}</div>
@@ -95,7 +107,7 @@ export default async function Page() {
                 fontWeight="bold"
                 color={player.usdPnL < 0 ? 'red.500' : 'green.500'}
               >
-                ${formatTokenAmount(player.usdPnL)}
+                ${formatTokenAmount(player.usdPnL - player.feesPaidInUSD)}
               </Td>
             </Tr>
           ))}
