@@ -147,7 +147,7 @@ function createPlayerDailyData(
   const player = getPlayer(playerAddress);
   if (
     player.lastBetTimestamp !== null &&
-    player.lastBetTimestamp == timestamp
+    player.lastBetTimestamp === timestamp
   ) {
     log.critical(
       'Trying to create daily data that already exists for player {} at timestamp {}',
