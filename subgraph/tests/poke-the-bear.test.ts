@@ -28,7 +28,14 @@ import {
 } from './poke-the-bear-utils';
 import { Cave, Player, PlayerRound, Round } from '../generated/schema';
 import { RoundStatus } from '../src/enums';
-import { createCave, getCave, getPlayer, getRound } from '../src/loaders';
+import {
+  createCave,
+  getCave,
+  getPlayer,
+  getPlayerDailyData,
+  getPlayerRound,
+  getRound
+} from '../src/loaders';
 import { looksTokenAddress } from '../src/price-oracle';
 
 afterEach(() => {
@@ -759,6 +766,151 @@ describe('handleRoundStatusUpdated', () => {
       player2.usdPnL,
       'Player PnL should be equal to the amount of USD won across all rounds'
     );
+  });
+  describe('Player daily data', () => {
+    beforeEach(() => {
+      // ETH cave
+      mockGetRoundCall('3', '1');
+      mockGetRoundCall('3', '2');
+      const player1Address = '0x0000000000000000000000000000000000000123';
+      const player2Address = '0x0000000000000000000000000000000000000456';
+      let roundEnteredEvent = createRoundsEnteredEvent(
+        BigInt.fromI32(3),
+        BigInt.fromI32(1),
+        BigInt.fromI32(2),
+        Address.fromString(player1Address)
+      );
+      handleRoundsEntered(roundEnteredEvent);
+
+      roundEnteredEvent = createRoundsEnteredEvent(
+        BigInt.fromI32(3),
+        BigInt.fromI32(1),
+        BigInt.fromI32(2),
+        Address.fromString(player2Address)
+      );
+      handleRoundsEntered(roundEnteredEvent);
+
+      // Looks cave
+      mockGetRoundCall('4', '1');
+      mockGetRoundCall('4', '2');
+      roundEnteredEvent = createRoundsEnteredEvent(
+        BigInt.fromI32(4),
+        BigInt.fromI32(1),
+        BigInt.fromI32(2),
+        Address.fromString(player1Address)
+      );
+      handleRoundsEntered(roundEnteredEvent);
+
+      roundEnteredEvent = createRoundsEnteredEvent(
+        BigInt.fromI32(4),
+        BigInt.fromI32(1),
+        BigInt.fromI32(2),
+        Address.fromString(player2Address)
+      );
+      handleRoundsEntered(roundEnteredEvent);
+
+      // Day 0
+      let roundRevealedEvent = createRoundStatusUpdatedEvent(
+        BigInt.fromI32(4),
+        BigInt.fromI32(1),
+        4
+      );
+      roundRevealedEvent.block.timestamp = BigInt.fromI32(14556);
+      handleRoundStatusUpdated(roundRevealedEvent);
+      roundRevealedEvent = createRoundStatusUpdatedEvent(
+        BigInt.fromI32(3),
+        BigInt.fromI32(1),
+        4
+      );
+      roundRevealedEvent.block.timestamp = BigInt.fromI32(32890);
+      handleRoundStatusUpdated(roundRevealedEvent);
+      // Day 1
+      roundRevealedEvent = createRoundStatusUpdatedEvent(
+        BigInt.fromI32(4),
+        BigInt.fromI32(2),
+        4
+      );
+      roundRevealedEvent.block.timestamp = BigInt.fromI32(97312);
+      handleRoundStatusUpdated(roundRevealedEvent);
+      roundRevealedEvent = createRoundStatusUpdatedEvent(
+        BigInt.fromI32(3),
+        BigInt.fromI32(2),
+        4
+      );
+      roundRevealedEvent.block.timestamp = BigInt.fromI32(105647);
+      handleRoundStatusUpdated(roundRevealedEvent);
+    });
+    test('Should update save one entity per unique day a round is revealed in', () => {
+      const player1Address = '0x0000000000000000000000000000000000000123';
+      const player2Address = '0x0000000000000000000000000000000000000456';
+      const ethCave = getCave('3');
+      const looksCave = getCave('4');
+      const player1Day1Data = getPlayerDailyData(player1Address, BigInt.zero());
+      const player1Day2Data = getPlayerDailyData(
+        player1Address,
+        BigInt.fromI32(86400)
+      );
+
+      assert.stringEquals(player1Day1Data.player, player1Address);
+
+      // Day 0
+      assert.bigIntEquals(player1Day1Data.timestamp, BigInt.zero());
+      assert.bigIntEquals(player1Day1Data.roundsPlayed, BigInt.fromI32(2));
+      assert.bigIntEquals(player1Day1Data.ethPnL, ethCave.enterAmount.neg());
+      assert.bigIntEquals(
+        player1Day1Data.looksPnL,
+        looksCave.enterAmount.neg()
+      );
+      assert.bigIntEquals(
+        player1Day1Data.usdPnL,
+        getPlayerRound(player1Address, '3', '1')
+          .usdWagered.plus(getPlayerRound(player1Address, '4', '1').usdWagered)
+          .neg()
+      );
+      assert.bigIntEquals(
+        player1Day1Data.cumulatedEthPnL,
+        player1Day1Data.ethPnL
+      );
+      assert.bigIntEquals(
+        player1Day1Data.cumulatedLooksPnL,
+        player1Day1Data.looksPnL
+      );
+      assert.bigIntEquals(
+        player1Day1Data.cumulatedUsdPnL,
+        player1Day1Data.usdPnL
+      );
+
+      // Day 1
+      assert.bigIntEquals(player1Day2Data.timestamp, BigInt.fromI32(86400));
+      assert.bigIntEquals(player1Day2Data.roundsPlayed, BigInt.fromI32(2));
+      assert.bigIntEquals(player1Day2Data.ethPnL, ethCave.enterAmount.neg());
+      assert.bigIntEquals(
+        player1Day2Data.looksPnL,
+        looksCave.enterAmount.neg()
+      );
+      assert.bigIntEquals(
+        player1Day2Data.usdPnL,
+        getPlayerRound(player1Address, '3', '2')
+          .usdWagered.plus(getPlayerRound(player1Address, '4', '2').usdWagered)
+          .neg()
+      );
+      assert.bigIntEquals(
+        player1Day2Data.cumulativeRoundsPlayed,
+        player1Day1Data.roundsPlayed.plus(player1Day2Data.roundsPlayed)
+      );
+      assert.bigIntEquals(
+        player1Day2Data.cumulatedEthPnL,
+        player1Day1Data.ethPnL.plus(player1Day2Data.ethPnL)
+      );
+      assert.bigIntEquals(
+        player1Day2Data.cumulatedLooksPnL,
+        player1Day1Data.looksPnL.plus(player1Day2Data.looksPnL)
+      );
+      assert.bigIntEquals(
+        player1Day2Data.cumulatedUsdPnL,
+        player1Day1Data.usdPnL.plus(player1Day2Data.usdPnL)
+      );
+    });
   });
 });
 

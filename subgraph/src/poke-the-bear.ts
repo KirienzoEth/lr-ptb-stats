@@ -12,7 +12,8 @@ import {
   createPlayerRound,
   getCave,
   getPlayer,
-  getRound
+  getRound,
+  updatePlayerDailyData
 } from './loaders';
 import { RoundStatus } from './enums';
 import { convertEthToUSDT, convertLooksToUSDT } from './price-oracle';
@@ -142,23 +143,43 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
         } else {
           player.looksLost = player.looksLost.plus(cave.enterAmount);
         }
+
+        updatePlayerDailyData(
+          playerRound.player,
+          event.block.timestamp,
+          cave.currency == Address.zero()
+            ? cave.enterAmount.neg()
+            : BigInt.zero(),
+          cave.currency == Address.zero()
+            ? BigInt.zero()
+            : cave.enterAmount.neg(),
+          playerRound.usdWagered.neg()
+        );
       }
       // or else, distribute the prizes to the winning players
       else {
         player.roundsWonCount = player.roundsWonCount.plus(BigInt.fromI32(1));
+        let usdToWin = BigInt.zero();
         if (cave.currency == Address.zero()) {
-          const usdToWin = convertEthToUSDT(cave.prizeAmount);
+          usdToWin = convertEthToUSDT(cave.prizeAmount);
           player.ethWon = player.ethWon.plus(cave.prizeAmount);
-          player.usdWon = player.usdWon.plus(usdToWin);
-          player.usdPnL = player.usdPnL.plus(usdToWin);
         } else {
-          const usdToWin = convertLooksToUSDT(cave.prizeAmount);
+          usdToWin = convertLooksToUSDT(cave.prizeAmount);
           player.looksWon = player.looksWon.plus(cave.prizeAmount);
-          player.usdWon = player.usdWon.plus(usdToWin);
-          player.usdPnL = player.usdPnL.plus(usdToWin);
         }
+
+        player.usdWon = player.usdWon.plus(usdToWin);
+        player.usdPnL = player.usdPnL.plus(usdToWin);
+        updatePlayerDailyData(
+          playerRound.player,
+          event.block.timestamp,
+          cave.currency == Address.zero() ? cave.prizeAmount : BigInt.zero(),
+          cave.currency == Address.zero() ? BigInt.zero() : cave.prizeAmount,
+          usdToWin
+        );
       }
 
+      player.lastBetTimestamp = event.block.timestamp;
       player.save();
     }
 

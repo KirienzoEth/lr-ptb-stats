@@ -1,4 +1,10 @@
-import { Cave, Player, PlayerRound, Round } from '../generated/schema';
+import {
+  Cave,
+  Player,
+  PlayerDailyData,
+  PlayerRound,
+  Round
+} from '../generated/schema';
 import { Address, BigInt, log } from '@graphprotocol/graph-ts';
 import { RoundStatus } from './enums';
 
@@ -51,6 +57,7 @@ export function createPlayer(playerAddress: string): Player {
   player.roundsEnteredCount = new BigInt(0);
   player.roundsWonCount = new BigInt(0);
   player.roundsLostCount = new BigInt(0);
+
   player.save();
 
   return player;
@@ -131,4 +138,93 @@ export function getPlayerRound(
   }
 
   return playerRound;
+}
+
+function createPlayerDailyData(
+  playerAddress: string,
+  timestamp: BigInt
+): PlayerDailyData {
+  const player = getPlayer(playerAddress);
+  if (
+    player.lastBetTimestamp !== null &&
+    player.lastBetTimestamp == timestamp
+  ) {
+    log.critical(
+      'Trying to create daily data that already exists for player {} at timestamp {}',
+      [playerAddress, timestamp.toString()]
+    );
+  }
+
+  const playerDailyData = new PlayerDailyData(`${playerAddress}-${timestamp}`);
+
+  playerDailyData.player = playerAddress;
+  playerDailyData.timestamp = timestamp;
+
+  playerDailyData.ethPnL = BigInt.zero();
+  playerDailyData.looksPnL = BigInt.zero();
+  playerDailyData.usdPnL = BigInt.zero();
+  playerDailyData.roundsPlayed = BigInt.zero();
+
+  playerDailyData.cumulatedEthPnL = BigInt.zero();
+  playerDailyData.cumulatedLooksPnL = BigInt.zero();
+  playerDailyData.cumulatedUsdPnL = BigInt.zero();
+  playerDailyData.cumulativeRoundsPlayed = BigInt.zero();
+
+  if (player.lastBetTimestamp !== null) {
+    const lastBetDay = (player.lastBetTimestamp!.toI32() / 86400) * 86400;
+    const previousDayData = getPlayerDailyData(
+      playerAddress,
+      BigInt.fromI32(lastBetDay)
+    );
+    playerDailyData.cumulatedEthPnL = previousDayData.cumulatedEthPnL;
+    playerDailyData.cumulatedLooksPnL = previousDayData.cumulatedLooksPnL;
+    playerDailyData.cumulatedUsdPnL = previousDayData.cumulatedUsdPnL;
+    playerDailyData.cumulativeRoundsPlayed =
+      previousDayData.cumulativeRoundsPlayed;
+  }
+
+  playerDailyData.save();
+
+  return playerDailyData;
+}
+
+export function getPlayerDailyData(
+  playerAddress: string,
+  timestamp: BigInt
+): PlayerDailyData {
+  let today = (timestamp.toI32() / 86400) * 86400;
+  let playerDailyDataId = `${playerAddress}-${today}`;
+  let playerDailyData = PlayerDailyData.load(playerDailyDataId);
+  if (!playerDailyData) {
+    playerDailyData = createPlayerDailyData(
+      playerAddress,
+      BigInt.fromI32(today)
+    );
+  }
+
+  return playerDailyData;
+}
+
+export function updatePlayerDailyData(
+  playerAddress: string,
+  timestamp: BigInt,
+  ethPnL: BigInt,
+  looksPnL: BigInt,
+  usdPnL: BigInt
+): void {
+  const dailyData = getPlayerDailyData(playerAddress, timestamp);
+
+  dailyData.ethPnL = dailyData.ethPnL.plus(ethPnL);
+  dailyData.looksPnL = dailyData.looksPnL.plus(looksPnL);
+  dailyData.usdPnL = dailyData.usdPnL.plus(usdPnL);
+  dailyData.roundsPlayed = dailyData.roundsPlayed.plus(BigInt.fromI32(1));
+
+  dailyData.cumulatedEthPnL = dailyData.cumulatedEthPnL.plus(ethPnL);
+  dailyData.cumulatedLooksPnL = dailyData.cumulatedLooksPnL.plus(looksPnL);
+  dailyData.cumulatedUsdPnL = dailyData.cumulatedUsdPnL.plus(usdPnL);
+  dailyData.cumulativeRoundsPlayed = dailyData.cumulativeRoundsPlayed.plus(
+    BigInt.fromI32(1)
+  );
+
+  dailyData.save();
 }

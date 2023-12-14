@@ -36,6 +36,8 @@ type Player @entity {
   id: String!
   ensName: String
   looksWagered: BigInt!
+  "The UTC timestamp of the las bet made by that player"
+  lastBetTimestamp: BigInt
   ethWagered: BigInt!
   usdWagered: BigInt!
   looksWon: BigInt!
@@ -53,6 +55,24 @@ type Player @entity {
   roundsLostCount: BigInt!
   roundsEnteredCount: BigInt!
   roundsEntered: [PlayerRound!]! @derivedFrom(field: "player")
+}
+
+type PlayerDailyData @entity {
+  "player's address + date"
+  id: String!
+  player: Player!
+  "Timestamp of the start of the UTC day"
+  timestamp: BigInt!
+  "PnL of that day"
+  looksPnL: BigInt!
+  ethPnL: BigInt!
+  usdPnL: BigInt!
+  roundsPlayed: BigInt!
+  "Sum of the data saved in the previous and current days"
+  cumulatedLooksPnL: BigInt!
+  cumulatedEthPnL: BigInt!
+  cumulatedUsdPnL: BigInt!
+  cumulativeRoundsPlayed: BigInt!
 }
 
 type PlayerRound @entity {
