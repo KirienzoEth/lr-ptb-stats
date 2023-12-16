@@ -1,3 +1,4 @@
+'use client';
 import { ptbSubgraphAPI } from '@/common/api';
 import {
   Table,
@@ -10,11 +11,25 @@ import {
   TableContainer,
   Image,
   Flex,
+  Link,
+  Skeleton,
+  IconButton,
 } from '@chakra-ui/react';
+import { ArrowBackIcon, ArrowForwardIcon, SearchIcon } from '@chakra-ui/icons';
 import { formatTokenAmount } from '../utils';
+import { useEffect, useState } from 'react';
 
-export default async function Page() {
-  const topPlayers = await ptbSubgraphAPI.getPlayers();
+export default function Page() {
+  let [topPlayers, setTopPlayers] = useState([] as Player[]);
+  const [page, setPage] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    setIsLoading(true);
+    ptbSubgraphAPI.getTopPlayers(10, page).then((players) => {
+      setTopPlayers(players);
+      setIsLoading(false);
+    });
+  }, [page]);
 
   const winStyle = {
     color: 'var(--chakra-colors-green-500)',
@@ -23,25 +38,56 @@ export default async function Page() {
     color: 'var(--chakra-colors-red-500)',
   };
 
+  const tableHead = (
+    <>
+      <TableCaption placement="top">Top users by USD wagered</TableCaption>
+      <Thead>
+        <Tr>
+          <Th width="3%">#</Th>
+          <Th minWidth="420px" width="30%">
+            Address
+          </Th>
+          <Th width="10%">USD Wagered</Th>
+          <Th width="10%">Looks wagered</Th>
+          <Th width="10%">ETH wagered</Th>
+          <Th width="10%">Gas paid</Th>
+          <Th width="5%" textAlign="right">
+            Rounds played
+          </Th>
+          <Th width="10%" textAlign="right">
+            PnL
+          </Th>
+          <Th minWidth="100px" width="5%"></Th>
+        </Tr>
+      </Thead>
+    </>
+  );
+
   return (
     <TableContainer>
-      <Table variant="simple" size={'sm'}>
-        <TableCaption>Top 20 users by USD wagered</TableCaption>
-        <Thead>
-          <Tr>
-            <Th>Address</Th>
-            <Th>USD Wagered</Th>
-            <Th>Looks wagered</Th>
-            <Th>ETH wagered</Th>
-            <Th>Gas paid</Th>
-            <Th>Rounds played</Th>
-            <Th>PnL</Th>
-          </Tr>
-        </Thead>
+      <Table display={isLoading ? '' : 'none'} variant="simple" size={'sm'}>
+        {tableHead}
+      </Table>
+      <Skeleton
+        display={isLoading ? '' : 'none'}
+        height="650px"
+        isLoaded={!isLoading}
+        width="100%"
+      ></Skeleton>
+      <Table display={isLoading ? 'none' : ''} variant="simple" size={'sm'}>
+        {tableHead}
         <Tbody>
-          {topPlayers.map((player) => (
+          {topPlayers.map((player, index) => (
             <Tr key={player.address}>
-              <Td>{player.ensName ?? player.address}</Td>
+              <Td>{index + 1 + page * 10}</Td>
+              <Td
+                maxWidth="400px"
+                overflow="hidden"
+                whiteSpace="nowrap"
+                textOverflow="ellipsis"
+              >
+                {player.ensName ? player.ensName : player.address}
+              </Td>
               <Td>${formatTokenAmount(player.usdWagered)}</Td>
               <Td textAlign="right">
                 <Flex alignItems="center">
@@ -104,10 +150,40 @@ export default async function Page() {
               >
                 ${formatTokenAmount(player.usdPnL - player.feesPaidInUSD)}
               </Td>
+              <Td>
+                <Flex justifyContent="center">
+                  <Link
+                    target="_blank"
+                    href={`https://etherscan.io/address/${player.address}`}
+                  >
+                    <Image width="20px" src="/etherscan-logo-circle.svg" />
+                  </Link>
+                  <Link href={`/poke-the-bear/${player.address}`}>
+                    <SearchIcon width="2.5em" />
+                  </Link>
+                </Flex>
+              </Td>
             </Tr>
           ))}
         </Tbody>
       </Table>
+      <div style={{ textAlign: 'center', width: '100%', padding: '10px' }}>
+        <IconButton
+          isDisabled={isLoading || page == 0}
+          marginRight="10px"
+          onClick={() => setPage(page - 1)}
+          aria-label="Previous page"
+          icon={<ArrowBackIcon />}
+        />
+        {page + 1}
+        <IconButton
+          isDisabled={isLoading || topPlayers.length < 10}
+          marginLeft="10px"
+          onClick={() => setPage(page + 1)}
+          aria-label="Next page"
+          icon={<ArrowForwardIcon />}
+        />
+      </div>
     </TableContainer>
   );
 }

@@ -18,6 +18,19 @@ interface Player {
   roundsEnteredCount: bigint;
 }
 
+interface PlayerDailyData {
+  player: string;
+  timestamp: bigint;
+  looksPnL: bigint;
+  ethPnL: bigint;
+  usdPnL: bigint;
+  roundsPlayed: bigint;
+  cumulatedLooksPnL: bigint;
+  cumulatedEthPnL: bigint;
+  cumulatedUsdPnL: bigint;
+  cumulativeRoundsPlayed: bigint;
+}
+
 interface GQLPlayer {
   id: string;
   ensName: string;
@@ -36,6 +49,20 @@ interface GQLPlayer {
   roundsWonCount: string;
   roundsLostCount: string;
   roundsEnteredCount: string;
+}
+
+interface GQLPlayerDailyData {
+  id: string;
+  player: string;
+  timestamp: string;
+  looksPnL: string;
+  ethPnL: string;
+  usdPnL: string;
+  roundsPlayed: string;
+  cumulatedLooksPnL: string;
+  cumulatedEthPnL: string;
+  cumulatedUsdPnL: string;
+  cumulativeRoundsPlayed: string;
 }
 
 interface GQLPlayerFilter {

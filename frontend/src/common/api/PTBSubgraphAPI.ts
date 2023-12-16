@@ -31,6 +31,23 @@ export class PTBSubgraphAPI {
     };
   }
 
+  private parseRawPlayerDailyData(
+    rawData: GQLPlayerDailyData
+  ): PlayerDailyData {
+    return {
+      player: rawData.player,
+      timestamp: BigInt(rawData.timestamp),
+      looksPnL: BigInt(rawData.looksPnL),
+      ethPnL: BigInt(rawData.ethPnL),
+      usdPnL: BigInt(rawData.usdPnL),
+      roundsPlayed: BigInt(rawData.roundsPlayed),
+      cumulatedLooksPnL: BigInt(rawData.cumulatedLooksPnL),
+      cumulatedEthPnL: BigInt(rawData.cumulatedEthPnL),
+      cumulatedUsdPnL: BigInt(rawData.cumulatedUsdPnL),
+      cumulativeRoundsPlayed: BigInt(rawData.cumulativeRoundsPlayed),
+    };
+  }
+
   async getPlayers(addresses: string[] = []): Promise<Player[]> {
     const filter: GQLPlayerFilter = {};
     if (addresses.length > 0) {
@@ -73,4 +90,45 @@ export class PTBSubgraphAPI {
       (player: GQLPlayer): Player => this.parseRawPlayerData(player)
     );
   }
+
+  async getTopPlayers(limit: number, page = 0): Promise<Player[]> {
+    const body = {
+      query: `
+        query GetPlayers($limit: Int!, $skip: Int!) {
+          players(
+            orderBy: usdWagered
+            orderDirection: desc
+            first: $limit
+            skip: $skip
+          ) {
+            id
+            ensName
+            usdPnL
+            usdWagered
+            looksWagered
+            looksWon
+            looksLost
+            ethWagered
+            ethWon
+            ethLost
+            feesPaidInETH
+            feesPaidInUSD
+            roundsEnteredCount
+            roundsWonCount
+            roundsLostCount
+          }
+        }
+      `,
+      variables: {
+        limit,
+        skip: page * limit,
+      },
+    };
+    const data = await this.httpClient.post(this.url, body);
+    return data.data.players.map(
+      (player: GQLPlayer): Player => this.parseRawPlayerData(player)
+    );
+  }
+
+  async getplayersDailyData(playerAddresses: string[]) {}
 }
