@@ -11,7 +11,7 @@ export default function Page() {
       alignItems="center"
       justifyContent="center"
     >
-      <Link _hover="" textDecoration="none" as={NextLink} href="/poke-the-bear">
+      <Link textDecoration="none" as={NextLink} href="/poke-the-bear">
         <Card width="400px" height="400px" maxW="sm" padding="20px">
           <CardBody textAlign="center">
             <Image margin="auto" height="280px" src="/ptb-logo.webp" />
@@ -19,7 +19,7 @@ export default function Page() {
           </CardBody>
         </Card>
       </Link>
-      <Link _hover="" textDecoration="none" as={NextLink} href="#">
+      <Link textDecoration="none" as={NextLink} href="#">
         <Card width="400px" height="400px" maxW="sm" padding="20px">
           <CardBody textAlign="center">
             <Image
