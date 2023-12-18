@@ -7,7 +7,7 @@ enum RoundStatus {
 
 type Game @entity {
   "'ptb'"
-  id: String!
+  id: ID!
   ethEarned: BigInt!
   looksEarned: BigInt!
   usdEarned: BigInt!
@@ -17,7 +17,7 @@ type Game @entity {
 
 type GameDailyData @entity {
   "'ptb-' + day timestamp"
-  id: String!
+  id: ID!
   "Timestamp of the start of the UTC day"
   timestamp: BigInt!
   ethEarned: BigInt!
@@ -33,7 +33,7 @@ type GameDailyData @entity {
 }
 
 type Cave @entity {
-  id: String! # uint256
+  id: ID! # uint256
   prizeAmount: BigInt! # uint256
   enterAmount: BigInt! # uint256
   currency: Bytes! # address
@@ -50,7 +50,7 @@ type Cave @entity {
 
 type Round @entity {
   "cave ID + round ID"
-  id: String!
+  id: ID!
   roundId: BigInt!
   cave: Cave!
   status: RoundStatus!
@@ -61,7 +61,7 @@ type Round @entity {
 
 type Player @entity {
   "The player's address"
-  id: String!
+  id: ID!
   ensName: String
   looksWagered: BigInt!
   "The UTC timestamp of the las bet made by that player"
@@ -87,7 +87,7 @@ type Player @entity {
 
 type PlayerDailyData @entity {
   "player's address + date"
-  id: String!
+  id: ID!
   player: Player!
   "Timestamp of the start of the UTC day"
   timestamp: BigInt!
@@ -105,7 +105,7 @@ type PlayerDailyData @entity {
 
 type PlayerRound @entity {
   "player ID + cave ID + round ID"
-  id: String!
+  id: ID!
   player: Player!
   "Price in USD of the tokens ganbled in this round"
   usdWagered: BigInt!
