@@ -28,7 +28,7 @@ interface PlayerDailyData {
   cumulatedLooksPnL: bigint;
   cumulatedEthPnL: bigint;
   cumulatedUsdPnL: bigint;
-  cumulativeRoundsPlayed: bigint;
+  cumulatedRoundsPlayed: bigint;
 }
 
 interface GQLPlayer {
@@ -62,7 +62,7 @@ interface GQLPlayerDailyData {
   cumulatedLooksPnL: string;
   cumulatedEthPnL: string;
   cumulatedUsdPnL: string;
-  cumulativeRoundsPlayed: string;
+  cumulatedRoundsPlayed: string;
 }
 
 interface GQLPlayerFilter {

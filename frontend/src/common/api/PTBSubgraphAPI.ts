@@ -44,7 +44,7 @@ export class PTBSubgraphAPI {
       cumulatedLooksPnL: BigInt(rawData.cumulatedLooksPnL),
       cumulatedEthPnL: BigInt(rawData.cumulatedEthPnL),
       cumulatedUsdPnL: BigInt(rawData.cumulatedUsdPnL),
-      cumulativeRoundsPlayed: BigInt(rawData.cumulativeRoundsPlayed),
+      cumulatedRoundsPlayed: BigInt(rawData.cumulatedRoundsPlayed),
     };
   }
 
