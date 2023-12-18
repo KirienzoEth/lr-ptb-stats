@@ -19,7 +19,11 @@ export default function Page() {
           </CardBody>
         </Card>
       </Link>
-      <Link textDecoration="none" as={NextLink} href="#">
+      <Link
+        _hover={{ textDecoration: 'none', cursor: 'default' }}
+        as={NextLink}
+        href="#"
+      >
         <Card width="400px" height="400px" maxW="sm" padding="20px">
           <CardBody textAlign="center">
             <Image
