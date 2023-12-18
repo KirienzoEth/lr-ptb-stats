@@ -19,8 +19,7 @@ import {
 import {
   ethUsdtUniV2PoolAddress,
   looksTokenAddress,
-  priceOracleAddress,
-  usdtTokenAddress
+  priceOracleAddress
 } from '../src/price-oracle';
 import { ensReverseRecordsAddress } from '../src/ens';
 

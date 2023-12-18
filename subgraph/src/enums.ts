@@ -6,3 +6,7 @@ export namespace RoundStatus {
   export const REVEALED = 'REVEALED';
   export const CANCELLED = 'CANCELLED';
 }
+
+export namespace GameID {
+  export const PTB = 'PTB';
+}

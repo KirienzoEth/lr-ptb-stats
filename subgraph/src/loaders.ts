@@ -3,10 +3,55 @@ import {
   Player,
   PlayerDailyData,
   PlayerRound,
+  Game,
+  GameDailyData,
   Round
 } from '../generated/schema';
 import { Address, BigInt, log } from '@graphprotocol/graph-ts';
 import { RoundStatus } from './enums';
+
+export function createGame(gameId: string): Game {
+  const game = new Game(gameId);
+
+  game.usdVolume = BigInt.zero();
+  game.ethEarned = BigInt.zero();
+  game.looksEarned = BigInt.zero();
+  game.usdEarned = BigInt.zero();
+  game.roundsPlayed = BigInt.zero();
+
+  return game;
+}
+
+export function getGame(gameId: string): Game {
+  let game = Game.load(gameId);
+  if (game === null) {
+    game = createGame(gameId);
+  }
+
+  return game;
+}
+
+export function createGameDayData(
+  gameId: string,
+  timestamp: BigInt
+): GameDailyData {
+  const game = new GameDailyData(`${gameId}-${timestamp.toString()}`);
+
+  game.timestamp = timestamp;
+  game.ethEarned = BigInt.zero();
+  game.looksEarned = BigInt.zero();
+  game.usdEarned = BigInt.zero();
+  game.usdVolume = BigInt.zero();
+  game.roundsPlayed = BigInt.zero();
+
+  game.cumulatedLooksEarned = BigInt.zero();
+  game.cumulatedEthEarned = BigInt.zero();
+  game.cumulatedUsdEarned = BigInt.zero();
+  game.cumulatedRoundsPlayed = BigInt.zero();
+  game.save();
+
+  return game;
+}
 
 export function createRound(roundId: string, caveId: string): Round {
   let round = new Round(caveId + '-' + roundId);
@@ -38,25 +83,25 @@ export function getRound(
 export function createPlayer(playerAddress: string): Player {
   let player = new Player(playerAddress);
 
-  player.feesPaidInETH = new BigInt(0);
-  player.feesPaidInUSD = new BigInt(0);
+  player.feesPaidInETH = BigInt.zero();
+  player.feesPaidInUSD = BigInt.zero();
 
-  player.looksWagered = new BigInt(0);
-  player.looksWon = new BigInt(0);
-  player.looksLost = new BigInt(0);
+  player.looksWagered = BigInt.zero();
+  player.looksWon = BigInt.zero();
+  player.looksLost = BigInt.zero();
 
-  player.ethWagered = new BigInt(0);
-  player.ethWon = new BigInt(0);
-  player.ethLost = new BigInt(0);
+  player.ethWagered = BigInt.zero();
+  player.ethWon = BigInt.zero();
+  player.ethLost = BigInt.zero();
 
-  player.usdPnL = new BigInt(0);
-  player.usdWagered = new BigInt(0);
-  player.usdWon = new BigInt(0);
-  player.usdLost = new BigInt(0);
+  player.usdPnL = BigInt.zero();
+  player.usdWagered = BigInt.zero();
+  player.usdWon = BigInt.zero();
+  player.usdLost = BigInt.zero();
 
-  player.roundsEnteredCount = new BigInt(0);
-  player.roundsWonCount = new BigInt(0);
-  player.roundsLostCount = new BigInt(0);
+  player.roundsEnteredCount = BigInt.zero();
+  player.roundsWonCount = BigInt.zero();
+  player.roundsLostCount = BigInt.zero();
 
   player.save();
 
@@ -80,15 +125,16 @@ export function getPlayer(
 
 export function createCave(caveId: string): Cave {
   let cave = new Cave(caveId);
-  cave.enterAmount = new BigInt(0);
-  cave.prizeAmount = new BigInt(0);
+  cave.enterAmount = BigInt.zero();
+  cave.prizeAmount = BigInt.zero();
   cave.currency = Address.zero();
-  cave.roundDuration = new BigInt(0);
+  cave.roundDuration = BigInt.zero();
   cave.playersPerRound = 0;
   cave.protocolFeeBp = 0;
+  cave.feeAmount = BigInt.zero();
   cave.isActive = true;
-  cave.roundsCount = new BigInt(0);
-  cave.maintenanceCost = new BigInt(0);
+  cave.roundsCount = BigInt.zero();
+  cave.maintenanceCost = BigInt.zero();
   cave.save();
 
   return cave;
@@ -113,10 +159,10 @@ export function createPlayerRound(
   playerRound.player = playerAddress;
   playerRound.cave = caveId;
   playerRound.round = `${caveId}-${roundId}`;
-  playerRound.gemsEarned = new BigInt(0);
-  playerRound.usdWagered = new BigInt(0);
-  playerRound.feesPaidInETH = new BigInt(0);
-  playerRound.feesPaidInUSD = new BigInt(0);
+  playerRound.gemsEarned = BigInt.zero();
+  playerRound.usdWagered = BigInt.zero();
+  playerRound.feesPaidInETH = BigInt.zero();
+  playerRound.feesPaidInUSD = BigInt.zero();
   playerRound.save();
 
   return playerRound;
@@ -168,7 +214,7 @@ function createPlayerDailyData(
   playerDailyData.cumulatedEthPnL = BigInt.zero();
   playerDailyData.cumulatedLooksPnL = BigInt.zero();
   playerDailyData.cumulatedUsdPnL = BigInt.zero();
-  playerDailyData.cumulativeRoundsPlayed = BigInt.zero();
+  playerDailyData.cumulatedRoundsPlayed = BigInt.zero();
 
   if (player.lastBetTimestamp !== null) {
     const lastBetDay = (player.lastBetTimestamp!.toI32() / 86400) * 86400;
@@ -179,8 +225,8 @@ function createPlayerDailyData(
     playerDailyData.cumulatedEthPnL = previousDayData.cumulatedEthPnL;
     playerDailyData.cumulatedLooksPnL = previousDayData.cumulatedLooksPnL;
     playerDailyData.cumulatedUsdPnL = previousDayData.cumulatedUsdPnL;
-    playerDailyData.cumulativeRoundsPlayed =
-      previousDayData.cumulativeRoundsPlayed;
+    playerDailyData.cumulatedRoundsPlayed =
+      previousDayData.cumulatedRoundsPlayed;
   }
 
   playerDailyData.save();
@@ -222,7 +268,7 @@ export function updatePlayerDailyData(
   dailyData.cumulatedEthPnL = dailyData.cumulatedEthPnL.plus(ethPnL);
   dailyData.cumulatedLooksPnL = dailyData.cumulatedLooksPnL.plus(looksPnL);
   dailyData.cumulatedUsdPnL = dailyData.cumulatedUsdPnL.plus(usdPnL);
-  dailyData.cumulativeRoundsPlayed = dailyData.cumulativeRoundsPlayed.plus(
+  dailyData.cumulatedRoundsPlayed = dailyData.cumulatedRoundsPlayed.plus(
     BigInt.fromI32(1)
   );
 

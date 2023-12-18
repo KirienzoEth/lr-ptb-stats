@@ -26,8 +26,8 @@ import {
   mockGetRoundCall,
   mockLooksPriceInETH
 } from './poke-the-bear-utils';
-import { Cave, Player, PlayerRound, Round } from '../generated/schema';
-import { RoundStatus } from '../src/enums';
+import { Cave, Game, Player, PlayerRound, Round } from '../generated/schema';
+import { GameID, RoundStatus } from '../src/enums';
 import {
   createCave,
   getCave,
@@ -639,6 +639,19 @@ describe('handleRoundStatusUpdated', () => {
       player2.usdWon,
       cave.prizeAmount.times(BigInt.fromI32(1000))
     );
+
+    const game = Game.load(GameID.PTB)!;
+    assert.bigIntEquals(game.ethEarned, cave.feeAmount);
+    assert.bigIntEquals(game.looksEarned, BigInt.zero());
+    assert.bigIntEquals(game.roundsPlayed, BigInt.fromI32(1));
+    assert.bigIntEquals(
+      game.usdEarned,
+      cave.feeAmount.times(BigInt.fromI32(1000))
+    );
+    assert.bigIntEquals(
+      game.usdVolume,
+      playerRounds[0].usdWagered.plus(playerRounds[1].usdWagered)
+    );
   });
   test('Should set the loser of the round when status is 4 and cave is in looks', () => {
     mockGetRoundCall('4', '1');
@@ -697,6 +710,15 @@ describe('handleRoundStatusUpdated', () => {
     const usdToWin = cave.prizeAmount.times(BigInt.fromI32(20));
     assert.bigIntEquals(usdToWin, player2.usdWon);
     assert.bigIntEquals(usdToWin, player2.usdPnL);
+
+    const game = Game.load(GameID.PTB)!;
+    assert.bigIntEquals(game.ethEarned, BigInt.zero());
+    assert.bigIntEquals(game.looksEarned, cave.feeAmount);
+    assert.bigIntEquals(game.roundsPlayed, BigInt.fromI32(1));
+    assert.bigIntEquals(
+      game.usdEarned,
+      cave.feeAmount.times(BigInt.fromI32(20))
+    );
   });
   test('Should accumulate the losses/earning through multiple rounds', () => {
     mockGetRoundCall('4', '1');
@@ -766,6 +788,18 @@ describe('handleRoundStatusUpdated', () => {
       player2.usdPnL,
       'Player PnL should be equal to the amount of USD won across all rounds'
     );
+
+    const game = Game.load(GameID.PTB)!;
+    assert.bigIntEquals(
+      game.looksEarned,
+      cave.feeAmount.times(BigInt.fromI32(2))
+    );
+    assert.bigIntEquals(game.roundsPlayed, BigInt.fromI32(2));
+    assert.bigIntEquals(
+      game.usdEarned,
+      cave.feeAmount.times(BigInt.fromI32(40))
+    );
+    assert.bigIntEquals(game.usdVolume, usdWagered.times(BigInt.fromI32(4)));
   });
   describe('Player daily data', () => {
     beforeEach(() => {
@@ -842,7 +876,6 @@ describe('handleRoundStatusUpdated', () => {
     });
     test('Should update save one entity per unique day a round is revealed in', () => {
       const player1Address = '0x0000000000000000000000000000000000000123';
-      const player2Address = '0x0000000000000000000000000000000000000456';
       const ethCave = getCave('3');
       const looksCave = getCave('4');
       const player1Day1Data = getPlayerDailyData(player1Address, BigInt.zero());
@@ -895,7 +928,7 @@ describe('handleRoundStatusUpdated', () => {
           .neg()
       );
       assert.bigIntEquals(
-        player1Day2Data.cumulativeRoundsPlayed,
+        player1Day2Data.cumulatedRoundsPlayed,
         player1Day1Data.roundsPlayed.plus(player1Day2Data.roundsPlayed)
       );
       assert.bigIntEquals(

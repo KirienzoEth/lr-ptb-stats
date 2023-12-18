@@ -5,6 +5,33 @@ enum RoundStatus {
   CANCELLED
 }
 
+type Game @entity {
+  "'ptb'"
+  id: String!
+  ethEarned: BigInt!
+  looksEarned: BigInt!
+  usdEarned: BigInt!
+  usdVolume: BigInt!
+  roundsPlayed: BigInt!
+}
+
+type GameDailyData @entity {
+  "'ptb-' + day timestamp"
+  id: String!
+  "Timestamp of the start of the UTC day"
+  timestamp: BigInt!
+  ethEarned: BigInt!
+  looksEarned: BigInt!
+  usdEarned: BigInt!
+  usdVolume: BigInt!
+  roundsPlayed: BigInt!
+  "Sum of the data saved in the previous and current days"
+  cumulatedLooksEarned: BigInt!
+  cumulatedEthEarned: BigInt!
+  cumulatedUsdEarned: BigInt!
+  cumulatedRoundsPlayed: BigInt!
+}
+
 type Cave @entity {
   id: String! # uint256
   prizeAmount: BigInt! # uint256
@@ -13,6 +40,7 @@ type Cave @entity {
   roundDuration: BigInt! # uint40
   playersPerRound: Int! # uint8
   protocolFeeBp: Int! # uint16
+  feeAmount: BigInt!
   roundsCount: BigInt! # uint256
   isActive: Boolean!
   "How much ETH this cave costs to operate"
@@ -72,7 +100,7 @@ type PlayerDailyData @entity {
   cumulatedLooksPnL: BigInt!
   cumulatedEthPnL: BigInt!
   cumulatedUsdPnL: BigInt!
-  cumulativeRoundsPlayed: BigInt!
+  cumulatedRoundsPlayed: BigInt!
 }
 
 type PlayerRound @entity {

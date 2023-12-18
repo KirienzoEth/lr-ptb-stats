@@ -12,10 +12,11 @@ import {
   createPlayerRound,
   getCave,
   getPlayer,
+  getGame,
   getRound,
   updatePlayerDailyData
 } from './loaders';
-import { RoundStatus } from './enums';
+import { GameID, RoundStatus } from './enums';
 import { convertEthToUSDT, convertLooksToUSDT } from './price-oracle';
 import { updatePlayerENSName } from './ens';
 
@@ -30,6 +31,9 @@ export function handleCaveAdded(event: CaveAddedEvent): void {
     .times(BigInt.fromI32(10_000 - cave.protocolFeeBp))
     .div(BigInt.fromI32(10_000))
     .div(BigInt.fromI32(cave.playersPerRound - 1));
+  cave.feeAmount = cave.enterAmount
+    .times(BigInt.fromI32(cave.protocolFeeBp))
+    .div(BigInt.fromI32(10_000));
 
   cave.save();
 }
@@ -118,9 +122,19 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
   }
 
   let cave = getCave(round.cave);
+  const game = getGame(GameID.PTB);
 
   // Round has been revealed and loser has been selected
   if (event.params.status === 4) {
+    game.roundsPlayed = game.roundsPlayed.plus(BigInt.fromI32(1));
+    if (cave.currency == Address.zero()) {
+      game.ethEarned = game.ethEarned.plus(cave.feeAmount);
+      game.usdEarned = game.usdEarned.plus(convertEthToUSDT(cave.feeAmount));
+    } else {
+      game.looksEarned = game.looksEarned.plus(cave.feeAmount);
+      game.usdEarned = game.usdEarned.plus(convertLooksToUSDT(cave.feeAmount));
+    }
+
     let contract = PokeTheBear.bind(event.address);
     let roundData = contract.getRound(
       event.params.caveId,
@@ -131,6 +145,7 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
     let playerRounds = round.players.load();
     for (let i = 0; i < playerRounds.length; i++) {
       const playerRound = playerRounds[i];
+      game.usdVolume = game.usdVolume.plus(playerRound.usdWagered);
       const player = getPlayer(playerRound.player);
       // If a loser has been selected save it
       if (player.id == loserAddress) {
@@ -211,6 +226,7 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
     }
   }
 
+  game.save();
   round.save();
 }
 
@@ -289,7 +305,7 @@ export function handleProtocolFeeRecipientUpdated(
   let entity = new ProtocolFeeRecipientUpdated(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
-  entity.protocolFeeRecipient = event.params.protocolFeeRecipient
+  entity.gameFeeRecipient = event.params.gameFeeRecipient
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
