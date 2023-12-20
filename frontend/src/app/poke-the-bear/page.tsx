@@ -1,11 +1,12 @@
-import { Container } from '@chakra-ui/react';
+'use client';
+import GeneralStats from './general-stats';
 import TopPlayersTable from './top-players-table';
 
 export default async function Page() {
   return (
     <>
-      <Container>Top players of the PTB by USD volume wagered.</Container>
-      <div style={{ margin: '50px 50px' }}>
+      <GeneralStats />
+      <div style={{ margin: '20px 50px' }}>
         <TopPlayersTable />
       </div>
     </>

@@ -1,0 +1,34 @@
+.currency-logo {
+  width: 2em;
+  display: inline-block;
+  margin-right: 0.5em;
+}
+
+.loss {
+  color: var(--chakra-colors-red-500);
+  font-weight: bold;
+}
+
+.profit {
+  color: var(--chakra-colors-green-500);
+  font-weight: bold;
+}
+
+.chakra-stat__group {
+  display: grid;
+  grid-auto-columns: auto;
+  margin: 0 10%;
+  text-align: center;
+  .chakra-stat {
+    text-align: center;
+    min-width: 200px;
+    margin: auto;
+    padding: 20px;
+    .chakra-stat__label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 3em;
+    }
+  }
+}

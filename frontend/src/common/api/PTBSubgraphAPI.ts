@@ -48,6 +48,39 @@ export class PTBSubgraphAPI {
     };
   }
 
+  private parseRawGameData(rawData: GQLGame): Game {
+    return {
+      name: rawData.id,
+      ethEarned: BigInt(rawData.ethEarned),
+      looksEarned: BigInt(rawData.looksEarned),
+      usdEarned: BigInt(rawData.usdEarned),
+      usdVolume: BigInt(rawData.usdVolume),
+      roundsPlayed: +rawData.roundsPlayed,
+    };
+  }
+
+  async getPTBGame(): Promise<Game> {
+    const body = {
+      query: `
+        query getGame($id: ID!) {
+          game(id: $id) {
+            id
+            ethEarned
+            looksEarned
+            usdEarned
+            usdVolume
+            roundsPlayed
+          }
+        }
+      `,
+      variables: {
+        id: 'PTB',
+      },
+    };
+    const data = await this.httpClient.post(this.url, body);
+    return this.parseRawGameData(data.data.game);
+  }
+
   async getPlayers(addresses: string[] = []): Promise<Player[]> {
     const filter: GQLPlayerFilter = {};
     if (addresses.length > 0) {

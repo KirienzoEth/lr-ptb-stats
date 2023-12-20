@@ -65,6 +65,24 @@ interface GQLPlayerDailyData {
   cumulatedRoundsPlayed: string;
 }
 
+interface Game {
+  name: string;
+  ethEarned: bigint;
+  looksEarned: bigint;
+  usdEarned: bigint;
+  usdVolume: bigint;
+  roundsPlayed: number;
+}
+
+interface GQLGame {
+  id: string;
+  ethEarned: string;
+  looksEarned: string;
+  usdEarned: string;
+  usdVolume: string;
+  roundsPlayed: string;
+}
+
 interface GQLPlayerFilter {
   id_in?: string[];
 }

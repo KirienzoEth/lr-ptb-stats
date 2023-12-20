@@ -14,6 +14,7 @@ import {
   Link,
   Skeleton,
   IconButton,
+  Heading,
 } from '@chakra-ui/react';
 import { ArrowBackIcon, ArrowForwardIcon, SearchIcon } from '@chakra-ui/icons';
 import { formatTokenAmount } from '../utils';
@@ -24,7 +25,8 @@ export default function Page() {
   const [page, setPage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    setIsLoading(true);
+    if (!isLoading) setIsLoading(true);
+    console.log(isLoading);
     ptbSubgraphAPI.getTopPlayers(10, page).then((players) => {
       setTopPlayers(players);
       setIsLoading(false);
@@ -40,7 +42,9 @@ export default function Page() {
 
   const tableHead = (
     <>
-      <TableCaption placement="top">Top users by USD wagered</TableCaption>
+      <TableCaption placement="top">
+        <Heading>Top users by USD wagered</Heading>
+      </TableCaption>
       <Thead>
         <Tr>
           <Th width="3%">#</Th>
