@@ -53,7 +53,7 @@ export default function GeneralStats() {
           <Stat>
             <StatLabel>
               <Image className="currency-logo" src="/looks.webp" />
-              Looks
+              Looks earned
             </StatLabel>
             <StatNumber>
               {formatTokenAmount(gameData.looksEarned ?? 0, 0)}
@@ -63,7 +63,7 @@ export default function GeneralStats() {
           <Stat>
             <StatLabel>
               <Image className="currency-logo" src="/ethereum.webp" />
-              ETH
+              ETH earned
             </StatLabel>
             <StatNumber>
               {formatTokenAmount(gameData.ethEarned ?? 0)}

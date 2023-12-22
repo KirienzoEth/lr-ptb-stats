@@ -6,8 +6,8 @@ export default function LineGraph({ data }: { data: Serie[] }) {
   return (
     <ResponsiveLine
       data={data}
-      margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-      xScale={{ type: 'point' }}
+      margin={{ top: 50, right: 50, bottom: 50, left: 50 }}
+      xScale={{ type: 'linear', min: 'auto', max: 'auto' }}
       yScale={{
         type: 'linear',
         min: 'auto',
@@ -73,6 +73,7 @@ export default function LineGraph({ data }: { data: Serie[] }) {
         },
       ]}
       tooltip={({ point }) => {
+        const date = new Date(+point.data.x.toString() * 1000);
         return (
           <Container
             backgroundColor="var(--chakra-colors-chakra-body-text)"
@@ -83,7 +84,13 @@ export default function LineGraph({ data }: { data: Serie[] }) {
             textAlign="center"
           >
             <Container color={point.serieColor}>{point.serieId}</Container>
-            {point.data.xFormatted}: <b>{point.data.yFormatted}</b>
+            {`${date.getUTCFullYear()}-${(date.getUTCMonth() + 1)
+              .toString()
+              .padStart(2, '0')}-${date
+              .getUTCDate()
+              .toString()
+              .padStart(2, '0')}`}
+            : <b>{point.data.yFormatted}</b>
           </Container>
         );
       }}

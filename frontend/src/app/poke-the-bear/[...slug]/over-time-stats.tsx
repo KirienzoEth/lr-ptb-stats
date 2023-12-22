@@ -17,12 +17,6 @@ function getCumulativeUSDPNLData(playersDailyData: PlayerDailyData[]): Serie[] {
   const addressToIndex: { [key: string]: number } = {};
   return playersDailyData.reduce((acc, playerDailyData) => {
     let addressIndex = addressToIndex[playerDailyData.playerAddress];
-    const date = new Date(+playerDailyData.timestamp.toString() * 1000);
-    const previousDay = new Date();
-    previousDay.setDate(date.getDate() - 1);
-    const formattedPreviousDay = `${previousDay.getUTCFullYear()}-${
-      previousDay.getUTCMonth() + 1
-    }-${previousDay.getUTCDate()}`;
     if (addressIndex === undefined) {
       addressToIndex[playerDailyData.playerAddress] = acc.length;
       addressIndex = addressToIndex[playerDailyData.playerAddress];
@@ -35,23 +29,9 @@ function getCumulativeUSDPNLData(playersDailyData: PlayerDailyData[]): Serie[] {
       };
     }
 
-    // Fill holes in the data
-    if (
-      acc[addressIndex].data[acc[addressIndex].data.length - 1] &&
-      acc[addressIndex].data[acc[addressIndex].data.length - 1].x !==
-        formattedPreviousDay
-    ) {
-      acc[addressIndex].data.push({
-        x: formattedPreviousDay,
-        y: acc[addressIndex].data[acc[addressIndex].data.length - 1].y,
-      });
-    }
-
     // Push data for the current date
     acc[addressIndex].data.push({
-      x: `${date.getUTCFullYear()}-${
-        date.getUTCMonth() + 1
-      }-${date.getUTCDate()}`,
+      x: +playerDailyData.timestamp.toString(),
       y: +formatEther(playerDailyData.cumulatedUsdPnL),
     });
 
@@ -62,9 +42,9 @@ function getCumulativeUSDPNLData(playersDailyData: PlayerDailyData[]): Serie[] {
 function getDailyUSDPNLData(playersDailyData: PlayerDailyData[]): BarDatum[] {
   return playersDailyData.reduce((acc, playerDailyData) => {
     const date = new Date(+playerDailyData.timestamp.toString() * 1000);
-    const formattedDate = `${date.getUTCFullYear()}-${
-      date.getUTCMonth() + 1
-    }-${date.getUTCDate()}`;
+    const formattedDate = `${date.getUTCFullYear()}-${(date.getUTCMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${date.getUTCDate().toString().padStart(2, '0')}`;
     let dataForDate = acc[acc.length - 1];
     if (!dataForDate || dataForDate.date !== formattedDate) {
       dataForDate = {
@@ -119,7 +99,7 @@ export default function OverTimeStats({ addresses }: { addresses: string[] }) {
 
   return (
     <>
-      <Flex height="500px">
+      <Flex height="500px" minWidth="300px" width="100%" flexWrap="wrap">
         <LineGraph data={getCumulativeUSDPNLData(playersDailyData)} />
         <BarGraph
           data={getDailyUSDPNLData(playersDailyData)}
