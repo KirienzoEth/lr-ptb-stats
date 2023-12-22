@@ -1,6 +1,7 @@
 import { ptbSubgraphAPI } from '@/common/api';
 import './addresses-data.scss';
-import PlayerStats from './player-stats';
+import GeneralStats from './general-stats';
+import OverTimeStats from './over-time-stats';
 
 export default async function AddressesData({
   addresses,
@@ -22,8 +23,8 @@ export default async function AddressesData({
 
   return (
     <>
-      <PlayerStats player={cumulatedPlayersData} />
-      {/* do overtime data here (maybe per round first?) */}
+      <GeneralStats player={cumulatedPlayersData} />
+      <OverTimeStats addresses={addresses} />
     </>
   );
 }

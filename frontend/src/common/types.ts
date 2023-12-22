@@ -19,7 +19,8 @@ interface Player {
 }
 
 interface PlayerDailyData {
-  player: string;
+  playerAddress: string;
+  playerName?: string;
   timestamp: bigint;
   looksPnL: bigint;
   ethPnL: bigint;
@@ -53,7 +54,10 @@ interface GQLPlayer {
 
 interface GQLPlayerDailyData {
   id: string;
-  player: string;
+  player: {
+    id: string;
+    ensName: string | null;
+  };
   timestamp: string;
   looksPnL: string;
   ethPnL: string;
@@ -85,4 +89,10 @@ interface GQLGame {
 
 interface GQLPlayerFilter {
   id_in?: string[];
+}
+
+interface GQLPlayerDailyDataFilter {
+  player_in?: string[];
+  timestamp_gte?: number;
+  timestamp_lte?: number;
 }

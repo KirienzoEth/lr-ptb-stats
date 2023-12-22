@@ -35,7 +35,8 @@ export class PTBSubgraphAPI {
     rawData: GQLPlayerDailyData
   ): PlayerDailyData {
     return {
-      player: rawData.player,
+      playerAddress: rawData.player.id,
+      playerName: rawData.player.ensName ?? undefined,
       timestamp: BigInt(rawData.timestamp),
       looksPnL: BigInt(rawData.looksPnL),
       ethPnL: BigInt(rawData.ethPnL),
@@ -121,6 +122,54 @@ export class PTBSubgraphAPI {
     const data = await this.httpClient.post(this.url, body);
     return data.data.players.map(
       (player: GQLPlayer): Player => this.parseRawPlayerData(player)
+    );
+  }
+
+  async getPlayersDailyData(
+    addresses: string[],
+    from?: number,
+    to?: number
+  ): Promise<PlayerDailyData[]> {
+    const filter: GQLPlayerDailyDataFilter = {};
+    if (addresses.length > 0) {
+      filter['player_in'] = addresses.map((address) => address.toLowerCase());
+    }
+    if (from) {
+      filter['timestamp_gte'] = from;
+    }
+    if (to) {
+      filter['timestamp_lte'] = to;
+    }
+
+    const body = {
+      query: `
+        query GetPlayersDailyData($filter: PlayerDailyData_filter) {
+          playerDailyDatas(where: $filter, orderBy: timestamp, orderDirection: asc, first: 1000) {
+            id
+            player {
+              id
+              ensName
+            }
+            timestamp
+            looksPnL
+            ethPnL
+            usdPnL
+            roundsPlayed
+            cumulatedLooksPnL
+            cumulatedEthPnL
+            cumulatedUsdPnL
+            cumulatedRoundsPlayed
+          }
+        }
+      `,
+      variables: {
+        filter,
+      },
+    };
+    const data = await this.httpClient.post(this.url, body);
+    return data.data.playerDailyDatas.map(
+      (playerDailyData: GQLPlayerDailyData): PlayerDailyData =>
+        this.parseRawPlayerDailyData(playerDailyData)
     );
   }
 

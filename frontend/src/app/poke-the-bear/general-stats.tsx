@@ -21,7 +21,6 @@ export default function GeneralStats() {
   useEffect(() => {
     isLoading ?? setIsLoading(true);
     ptbSubgraphAPI.getPTBGame().then((gameData) => {
-      console.log(gameData);
       setGameData(gameData);
       setIsLoading(false);
     });

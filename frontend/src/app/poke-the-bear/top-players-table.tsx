@@ -26,7 +26,6 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
-    console.log(isLoading);
     ptbSubgraphAPI.getTopPlayers(10, page).then((players) => {
       setTopPlayers(players);
       setIsLoading(false);
