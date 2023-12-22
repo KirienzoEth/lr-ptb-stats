@@ -10,6 +10,7 @@ export default function Page() {
       gap="3%"
       alignItems="center"
       justifyContent="center"
+      wrap="wrap"
     >
       <Link textDecoration="none" as={NextLink} href="/poke-the-bear">
         <Card width="400px" height="400px" maxW="sm" padding="20px">
