@@ -1,3 +1,8 @@
+enum CaveCurrency {
+  LOOKS,
+  ETH,
+}
+
 interface Player {
   address: string;
   ensName: string;
@@ -85,6 +90,28 @@ interface GQLGame {
   usdEarned: string;
   usdVolume: string;
   roundsPlayed: string;
+}
+
+interface Round {
+  id: string;
+  caveId: string;
+  caveEnterAmount: bigint;
+  cavePrizeAmount: bigint;
+  loser: Player;
+  players: Player[];
+  currency: CaveCurrency;
+}
+
+interface GQLRound {
+  roundId: string;
+  cave: {
+    id: string;
+    enterAmount: string;
+    currency: string;
+    prizeAmount: string;
+  };
+  loser: GQLPlayer;
+  players: { player: GQLPlayer; feesPaidInETH: string }[];
 }
 
 interface GQLPlayerFilter {

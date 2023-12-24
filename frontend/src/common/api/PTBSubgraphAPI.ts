@@ -1,3 +1,4 @@
+import { CaveCurrency } from '../enums';
 import { IHTTPClient } from '../http-client/IHTTPClient';
 
 export class PTBSubgraphAPI {
@@ -57,6 +58,23 @@ export class PTBSubgraphAPI {
       usdEarned: BigInt(rawData.usdEarned),
       usdVolume: BigInt(rawData.usdVolume),
       roundsPlayed: +rawData.roundsPlayed,
+    };
+  }
+
+  private parseRawRoundData(rawData: GQLRound): Round {
+    return {
+      id: rawData.roundId,
+      caveId: rawData.cave.id,
+      caveEnterAmount: BigInt(rawData.cave.enterAmount),
+      cavePrizeAmount: BigInt(rawData.cave.prizeAmount),
+      currency:
+        rawData.cave.currency === '0x0000000000000000000000000000000000000000'
+          ? CaveCurrency.ETH
+          : CaveCurrency.LOOKS,
+      loser: this.parseRawPlayerData(rawData.loser),
+      players: rawData.players.map((playerRound) =>
+        this.parseRawPlayerData(playerRound.player)
+      ),
     };
   }
 
@@ -212,5 +230,46 @@ export class PTBSubgraphAPI {
     );
   }
 
-  async getplayersDailyData(playerAddresses: string[]) {}
+  async getPlayersRounds(
+    addresses: string[],
+    page = 0,
+    limit = 10
+  ): Promise<Round[]> {
+    const lcAddresses = addresses.map((address) => address.toLowerCase());
+    const body = {
+      query: `
+        query getRounds($addresses: [String!]!, $limit: Int!, $skip: Int!) {
+          rounds(where: {status: REVEALED, players_: {player_in: $addresses}}, orderBy: closedTimestamp, orderDirection: desc, first: $limit, skip: $skip) {
+            roundId
+            cave {
+              id
+              enterAmount
+              prizeAmount
+              currency
+            }
+            loser {
+              id
+              ensName
+            }
+            players {
+              feesPaidInETH
+              player {
+                id
+                ensName
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        addresses: lcAddresses,
+        limit,
+        skip: page * limit,
+      },
+    };
+    const data = await this.httpClient.post(this.url, body);
+    return data.data.rounds.map(
+      (round: GQLRound): Round => this.parseRawRoundData(round)
+    );
+  }
 }

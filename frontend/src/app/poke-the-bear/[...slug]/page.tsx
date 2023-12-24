@@ -3,11 +3,11 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
-  Container,
 } from '@chakra-ui/react';
 import { isAddress } from 'viem';
 import OverTimeStats from './over-time-stats';
 import GeneralStats from './general-stats';
+import RoundsPlayedHistory from './history';
 
 export default function Page({ params }: { params: { slug: string[] } }) {
   const addresses = [...new Set(params.slug)];
@@ -27,6 +27,7 @@ export default function Page({ params }: { params: { slug: string[] } }) {
         <div style={{ height: '100vh', width: '100%' }}>
           <GeneralStats addresses={addresses} />
           <OverTimeStats addresses={addresses} />
+          <RoundsPlayedHistory addresses={addresses} />
         </div>
       )}
     </>

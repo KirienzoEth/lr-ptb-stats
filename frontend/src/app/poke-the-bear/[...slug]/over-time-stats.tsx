@@ -100,7 +100,7 @@ export default function OverTimeStats({ addresses }: { addresses: string[] }) {
 
   return (
     <>
-      <Flex height="500px" minWidth="300px" width="100%" wrap="wrap">
+      <Flex minHeight="500px" minWidth="300px" width="100%" wrap="wrap">
         <div className="graph-container">
           <LineGraph data={getCumulativeUSDPNLData(playersDailyData)} />
         </div>
