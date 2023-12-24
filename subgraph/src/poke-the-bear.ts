@@ -103,6 +103,7 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
     playerRound.usdWagered = usdWagered;
     playerRound.feesPaidInETH = feesPaidInETH;
     playerRound.feesPaidInUSD = feesPaidInUSD;
+    playerRound.enteredTimestamp = event.block.timestamp;
     playerRound.save();
   }
 

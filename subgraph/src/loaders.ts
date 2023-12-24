@@ -163,6 +163,7 @@ export function createPlayerRound(
   playerRound.usdWagered = BigInt.zero();
   playerRound.feesPaidInETH = BigInt.zero();
   playerRound.feesPaidInUSD = BigInt.zero();
+  playerRound.enteredTimestamp = BigInt.zero();
   playerRound.save();
 
   return playerRound;

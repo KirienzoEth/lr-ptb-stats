@@ -107,6 +107,8 @@ type PlayerRound @entity {
   "player ID + cave ID + round ID"
   id: ID!
   player: Player!
+  "Timestamp of when the player entered the round"
+  enteredTimestamp: BigInt!
   "Price in USD of the tokens ganbled in this round"
   usdWagered: BigInt!
   "Network fees paid to participate in this round. If several rounds are entered in the same transaction, they will share the same fees amount"
