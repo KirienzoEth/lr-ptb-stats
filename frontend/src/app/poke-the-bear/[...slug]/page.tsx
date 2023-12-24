@@ -3,11 +3,13 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Container,
 } from '@chakra-ui/react';
 import { isAddress } from 'viem';
-import AddressesData from './addresses-data';
+import OverTimeStats from './over-time-stats';
+import GeneralStats from './general-stats';
 
-export default async function Page({ params }: { params: { slug: string[] } }) {
+export default function Page({ params }: { params: { slug: string[] } }) {
   const addresses = [...new Set(params.slug)];
   const errorAddresses = addresses
     .map((address) => address.toLowerCase())
@@ -22,7 +24,10 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
           <AlertDescription>{errorAddresses.join(', ')}</AlertDescription>
         </Alert>
       ) : (
-        <AddressesData addresses={addresses} />
+        <div style={{ height: '100vh', width: '100%' }}>
+          <GeneralStats addresses={addresses} />
+          <OverTimeStats addresses={addresses} />
+        </div>
       )}
     </>
   );

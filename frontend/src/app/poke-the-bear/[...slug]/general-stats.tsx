@@ -1,3 +1,4 @@
+'use client';
 import { formatTokenAmount } from '@/app/utils';
 import {
   Stat,
@@ -8,10 +9,36 @@ import {
   StatGroup,
   Image,
 } from '@chakra-ui/react';
-import './addresses-data.scss';
+import { useEffect, useState } from 'react';
+import { ptbSubgraphAPI } from '@/common/api';
+import './page.scss';
 
-export default function GeneralStats({ player }: { player: Player }) {
-  const playerPnLWithGas = player.usdPnL - player.feesPaidInUSD;
+export default function GeneralStats({ addresses }: { addresses: string[] }) {
+  let [playerPnLWithGas, setPlayerPnLWithGas] = useState(BigInt(0));
+  let [playerData, setPlayerData] = useState({} as Player);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    if (!isLoading) setIsLoading(true);
+    ptbSubgraphAPI.getPlayers(addresses).then((players) => {
+      const cumulatedPlayersData = players[0];
+      for (let i = 1; i < players.length; i++) {
+        const additionalPlayer = players[i];
+        for (let [key, value] of Object.entries(additionalPlayer)) {
+          if (['number', 'bigint'].includes(typeof value)) {
+            (cumulatedPlayersData[
+              key as keyof typeof cumulatedPlayersData
+            ] as bigint) += value as bigint;
+          }
+        }
+      }
+
+      setPlayerData(cumulatedPlayersData);
+      setPlayerPnLWithGas(
+        cumulatedPlayersData.usdPnL - cumulatedPlayersData.feesPaidInUSD
+      );
+      setIsLoading(false);
+    });
+  }, []);
 
   return (
     <StatGroup>
@@ -21,43 +48,47 @@ export default function GeneralStats({ player }: { player: Player }) {
           Rounds Played
         </StatLabel>
         <StatNumber>
-          {player.roundsEnteredCount.toLocaleString(undefined)}
+          {playerData.roundsEnteredCount?.toLocaleString(undefined)}
         </StatNumber>
         <StatHelpText>
           <StatArrow type="increase" />
-          {player.roundsWonCount.toLocaleString(undefined)}
+          {playerData.roundsWonCount?.toLocaleString(undefined)}
           <span> </span>
           <StatArrow type="decrease" />
-          {player.roundsLostCount.toLocaleString(undefined)}
+          {playerData.roundsLostCount?.toLocaleString(undefined)}
         </StatHelpText>
       </Stat>
       <Stat>
         <StatLabel>📈 USD Volume</StatLabel>
-        <StatNumber>${formatTokenAmount(player.usdWagered)}</StatNumber>
+        <StatNumber>
+          ${formatTokenAmount(playerData.usdWagered ?? 0)}
+        </StatNumber>
       </Stat>
       <Stat>
         <StatLabel>
           <Image className="currency-logo" src="/looks.webp" />
           Looks
         </StatLabel>
-        <StatNumber>{formatTokenAmount(player.looksWagered, 0)}</StatNumber>
+        <StatNumber>
+          {formatTokenAmount(playerData.looksWagered ?? 0, 0)}
+        </StatNumber>
         <StatHelpText>
           <StatArrow type="increase" />
-          {formatTokenAmount(player.looksWon, 0)}
+          {formatTokenAmount(playerData.looksWon ?? 0, 0)}
           <span> </span>
           <StatArrow type="decrease" />
-          {formatTokenAmount(player.looksLost, 0)}
+          {formatTokenAmount(playerData.looksLost ?? 0, 0)}
           <div></div>
           <span
             style={{
               color:
-                player.looksWon - player.looksLost > 0
+                playerData.looksWon - playerData.looksLost > 0
                   ? 'var(--chakra-colors-green-500)'
                   : 'var(--chakra-colors-red-500)',
               fontWeight: 'bold',
             }}
           >
-            = {formatTokenAmount(player.looksWon - player.looksLost, 0)}
+            = {formatTokenAmount(playerData.looksWon - playerData.looksLost, 0)}
           </span>
         </StatHelpText>
       </Stat>
@@ -66,24 +97,24 @@ export default function GeneralStats({ player }: { player: Player }) {
           <Image className="currency-logo" src="/ethereum.webp" />
           ETH
         </StatLabel>
-        <StatNumber>{formatTokenAmount(player.ethWagered)}</StatNumber>
+        <StatNumber>{formatTokenAmount(playerData.ethWagered ?? 0)}</StatNumber>
         <StatHelpText>
           <StatArrow type="increase" />
-          {formatTokenAmount(player.ethWon)}
+          {formatTokenAmount(playerData.ethWon ?? 0)}
           <span> </span>
           <StatArrow type="decrease" />
-          {formatTokenAmount(player.ethLost)}
+          {formatTokenAmount(playerData.ethLost ?? 0)}
           <div></div>
           <span
             style={{
               color:
-                player.ethWon - player.ethLost > 0
+                playerData.ethWon - playerData.ethLost > 0
                   ? 'var(--chakra-colors-green-500)'
                   : 'var(--chakra-colors-red-500)',
               fontWeight: 'bold',
             }}
           >
-            = {formatTokenAmount(player.ethWon - player.ethLost)}
+            = {formatTokenAmount(playerData.ethWon - playerData.ethLost)}
           </span>
         </StatHelpText>
       </Stat>
@@ -91,12 +122,12 @@ export default function GeneralStats({ player }: { player: Player }) {
         <StatLabel>💸 Gas fees</StatLabel>
         <StatNumber>
           <StatArrow type="decrease" />
-          {formatTokenAmount(player.feesPaidInETH)}
+          {formatTokenAmount(playerData.feesPaidInETH ?? 0)}
           <Image width="7" className="currency-logo" src="/ethereum.webp" />
         </StatNumber>
         <StatHelpText>
           <StatArrow type="decrease" />$
-          {formatTokenAmount(player.feesPaidInUSD)}
+          {formatTokenAmount(playerData.feesPaidInUSD ?? 0)}
         </StatHelpText>
       </Stat>
       <Stat>
@@ -104,14 +135,14 @@ export default function GeneralStats({ player }: { player: Player }) {
         <StatNumber>
           <StatArrow type={playerPnLWithGas > 0 ? 'increase' : 'decrease'} />
           <span className={playerPnLWithGas > 0 ? 'profit' : 'loss'}>
-            ${formatTokenAmount(playerPnLWithGas)}
+            ${formatTokenAmount(playerPnLWithGas ?? 0)}
           </span>
         </StatNumber>
         <StatHelpText>
-          <StatArrow type={player.usdPnL > 0 ? 'increase' : 'decrease'} />
+          <StatArrow type={playerData.usdPnL > 0 ? 'increase' : 'decrease'} />
           without gas fees:{' '}
-          <span className={player.usdPnL > 0 ? 'profit' : 'loss'}>
-            ${formatTokenAmount(player.usdPnL)}
+          <span className={playerData.usdPnL > 0 ? 'profit' : 'loss'}>
+            ${formatTokenAmount(playerData.usdPnL ?? 0)}
           </span>
         </StatHelpText>
       </Stat>

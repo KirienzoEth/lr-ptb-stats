@@ -2,12 +2,12 @@
 import { ptbSubgraphAPI } from '@/common/api';
 import LineGraph from '@/app/components/data-viz/line-graph';
 import BarGraph from '@/app/components/data-viz/bar-graph';
-import './addresses-data.scss';
 import { useEffect, useState } from 'react';
 import { Serie } from '@nivo/line';
 import { formatEther } from 'viem';
 import { Flex } from '@chakra-ui/react';
 import { BarDatum } from '@nivo/bar';
+import './page.scss';
 
 function formatPlayerName(address: string, ensName?: string): string {
   return ensName?.slice(0, 12) ?? address.slice(0, 10);
