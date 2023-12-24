@@ -118,12 +118,18 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
     event.params.status === 1
   );
 
+  if (event.params.status === 1) {
+    round.openedTimestamp = event.block.timestamp;
+    round.save();
+  }
+
   if (event.params.status < 4) {
     return;
   }
 
   let cave = getCave(round.cave);
   const game = getGame(GameID.PTB);
+  round.closedTimestamp = event.block.timestamp;
 
   // Round has been revealed and loser has been selected
   if (event.params.status === 4) {

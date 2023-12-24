@@ -54,6 +54,9 @@ type Round @entity {
   roundId: BigInt!
   cave: Cave!
   status: RoundStatus!
+  openedTimestamp: BigInt!
+  "When the round has been revealed or cancelled"
+  closedTimestamp: BigInt
   loser: Player
   playersCount: BigInt!
   players: [PlayerRound!]! @derivedFrom(field: "round")

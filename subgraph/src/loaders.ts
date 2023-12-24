@@ -59,6 +59,7 @@ export function createRound(roundId: string, caveId: string): Round {
   round.roundId = BigInt.fromString(roundId);
   round.status = RoundStatus.OPEN;
   round.playersCount = BigInt.zero();
+  round.openedTimestamp = BigInt.zero();
   round.save();
 
   return round;
