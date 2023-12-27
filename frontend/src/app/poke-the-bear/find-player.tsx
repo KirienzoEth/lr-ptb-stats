@@ -23,6 +23,7 @@ export default function FindPlayer() {
   const handleConfirm = (event: any) => {
     const isValid = isAddress(inputValue);
     setIsInvalidAddress(!isValid);
+    console.log(inputValue, isValid);
     if (isValid) {
       setIsLoading(true);
       return true;
@@ -45,7 +46,7 @@ export default function FindPlayer() {
         <Link
           onClick={handleConfirm}
           as={NextLink}
-          href={isInvalidAddress ? '' : `/poke-the-bear/${inputValue}`}
+          href={`/poke-the-bear/${inputValue}`}
         >
           <Button disabled={isLoading} size="lg">
             {isLoading ? (
