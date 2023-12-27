@@ -5,7 +5,7 @@ import BarGraph from '@/app/components/data-viz/bar-graph';
 import { useEffect, useState } from 'react';
 import { Serie } from '@nivo/line';
 import { formatEther } from 'viem';
-import { Flex } from '@chakra-ui/react';
+import { Container, Flex, Heading } from '@chakra-ui/react';
 import { BarDatum } from '@nivo/bar';
 import './page.scss';
 import './over-time-stats.scss';
@@ -100,6 +100,7 @@ export default function OverTimeStats({ addresses }: { addresses: string[] }) {
 
   return (
     <>
+      <Heading textAlign="center">Activity in the last 30 days</Heading>
       <Flex minHeight="500px" minWidth="300px" width="100%" wrap="wrap">
         <div className="graph-container">
           <LineGraph data={getCumulativeUSDPNLData(playersDailyData)} />
