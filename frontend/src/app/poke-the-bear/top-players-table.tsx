@@ -167,7 +167,7 @@ export default function Page() {
                 <Flex justifyContent="center">
                   <Link
                     target="_blank"
-                    href={`https://etherscan.io/address/${player.address}`}
+                    href={`https://etherscan.io/advanced-filter?tadd=0x00000000009f22b55d3105e5cff7d1a6503cf3ce&fadd=${player.address}`}
                   >
                     <Image width="20px" src="/etherscan-logo-circle.svg" />
                   </Link>
