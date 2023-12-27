@@ -33,7 +33,6 @@ export default function RoundsPlayedHistory({
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
-    const from = Math.floor((new Date().getTime() - 86400000 * 31) / 1000);
     ptbSubgraphAPI.getPlayersRounds(addresses, page, 10).then((rounds) => {
       setRoundsPlayed(rounds);
       setIsLoading(false);
@@ -212,7 +211,11 @@ export default function RoundsPlayedHistory({
           })}
         </Tbody>
       </Table>
-      <PageSelector pageChangedHandler={setPage} />
+      <PageSelector
+        pageChangedHandler={setPage}
+        isDisabled={isLoading}
+        isLastPage={roundsPlayed.length !== 10}
+      />
     </TableContainer>
   );
 }

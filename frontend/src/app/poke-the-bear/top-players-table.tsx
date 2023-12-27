@@ -180,7 +180,11 @@ export default function Page() {
           ))}
         </Tbody>
       </Table>
-      <PageSelector isDisabled={isLoading} pageChangedHandler={setPage} />
+      <PageSelector
+        isDisabled={isLoading}
+        pageChangedHandler={setPage}
+        isLastPage={topPlayers.length !== 10}
+      />
     </TableContainer>
   );
 }

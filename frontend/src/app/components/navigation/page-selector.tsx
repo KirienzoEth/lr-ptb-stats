@@ -5,16 +5,18 @@ import { useState } from 'react';
 
 export default function PageSelector({
   isDisabled = false,
+  isLastPage = false,
   pageChangedHandler,
 }: {
   isDisabled?: boolean;
+  isLastPage?: boolean;
   pageChangedHandler: Function;
 }) {
   const [page, setPage] = useState(0);
   return (
     <div style={{ textAlign: 'center', width: '100%', padding: '10px' }}>
       <IconButton
-        isDisabled={isDisabled}
+        isDisabled={page === 0 ? true : isDisabled}
         marginRight="10px"
         onClick={() => {
           setPage(page - 1);
@@ -25,7 +27,7 @@ export default function PageSelector({
       />
       {page + 1}
       <IconButton
-        isDisabled={isDisabled}
+        isDisabled={isDisabled || isLastPage}
         marginLeft="10px"
         onClick={() => {
           setPage(page + 1);
