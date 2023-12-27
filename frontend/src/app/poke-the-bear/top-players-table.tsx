@@ -19,6 +19,7 @@ import {
 import { ArrowBackIcon, ArrowForwardIcon, SearchIcon } from '@chakra-ui/icons';
 import { formatTokenAmount } from '../utils';
 import { useEffect, useState } from 'react';
+import PageSelector from '../components/navigation/page-selector';
 
 export default function Page() {
   let [topPlayers, setTopPlayers] = useState([] as Player[]);
@@ -95,29 +96,38 @@ export default function Page() {
               <Td textAlign="right">
                 <Flex alignItems="center">
                   <Image src="/looks.webp" width={6} marginRight="10px" />
-                  <div>
-                    <div>{formatTokenAmount(player.looksWagered, 0)}</div>
-                    <div style={winStyle}>
-                      +{formatTokenAmount(player.looksWon, 0)}
+                  {player.looksWagered === BigInt(0) ? (
+                    0
+                  ) : (
+                    <div>
+                      <div>{formatTokenAmount(player.looksWagered, 0)}</div>
+                      <div style={winStyle}>
+                        +{formatTokenAmount(player.looksWon, 0)}
+                      </div>
+                      <div style={lossStyle}>
+                        -{formatTokenAmount(player.looksLost, 0)}
+                      </div>
                     </div>
-                    <div style={lossStyle}>
-                      -{formatTokenAmount(player.looksLost, 0)}
-                    </div>
-                  </div>
+                  )}
                 </Flex>
               </Td>
               <Td textAlign="right">
                 <Flex alignItems="center">
                   <Image src="/ethereum.webp" width={6} />
-                  <div>
-                    <div>{formatTokenAmount(player.ethWagered, 2)}</div>
-                    <div style={winStyle}>
-                      +{formatTokenAmount(player.ethWon, 2)}
+
+                  {player.ethWagered === BigInt(0) ? (
+                    0
+                  ) : (
+                    <div>
+                      <div>{formatTokenAmount(player.ethWagered, 2)}</div>
+                      <div style={winStyle}>
+                        +{formatTokenAmount(player.ethWon, 2)}
+                      </div>
+                      <div style={lossStyle}>
+                        -{formatTokenAmount(player.ethLost, 2)}
+                      </div>
                     </div>
-                    <div style={lossStyle}>
-                      -{formatTokenAmount(player.ethLost, 2)}
-                    </div>
-                  </div>
+                  )}
                 </Flex>
               </Td>
               <Td textAlign="left">
@@ -170,23 +180,7 @@ export default function Page() {
           ))}
         </Tbody>
       </Table>
-      <div style={{ textAlign: 'center', width: '100%', padding: '10px' }}>
-        <IconButton
-          isDisabled={isLoading || page == 0}
-          marginRight="10px"
-          onClick={() => setPage(page - 1)}
-          aria-label="Previous page"
-          icon={<ArrowBackIcon />}
-        />
-        {page + 1}
-        <IconButton
-          isDisabled={isLoading || topPlayers.length < 10}
-          marginLeft="10px"
-          onClick={() => setPage(page + 1)}
-          aria-label="Next page"
-          icon={<ArrowForwardIcon />}
-        />
-      </div>
+      <PageSelector isDisabled={isLoading} pageChangedHandler={setPage} />
     </TableContainer>
   );
 }

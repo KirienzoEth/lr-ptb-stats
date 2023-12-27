@@ -2,7 +2,7 @@
 import GeneralStats from './general-stats';
 import TopPlayersTable from './top-players-table';
 
-export default async function Page() {
+export default function Page() {
   return (
     <>
       <GeneralStats />
