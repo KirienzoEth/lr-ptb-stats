@@ -32,7 +32,7 @@ export default function GeneralStats() {
         <Heading>Protocol activity and earnings</Heading>
       </Container>
       <Skeleton isLoaded={!isLoading}>
-        <StatGroup>
+        <StatGroup className="protocol-stats">
           <Stat>
             <StatLabel>
               <Image className="currency-logo" src="/ptb-logo.webp" />
@@ -71,7 +71,7 @@ export default function GeneralStats() {
           </Stat>
           <Divider orientation="vertical" height="110px" margin="10px 0" />
           <Stat>
-            <StatLabel>💰 USD Earned</StatLabel>
+            <StatLabel>💰 USD equivalent</StatLabel>
             <StatNumber>
               {formatTokenAmount(gameData.usdEarned ?? 0, 0)}
             </StatNumber>

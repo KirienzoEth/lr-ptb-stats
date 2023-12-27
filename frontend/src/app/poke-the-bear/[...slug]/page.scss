@@ -14,11 +14,11 @@
   font-weight: bold;
 }
 
-.chakra-stat__group {
+.player-stats {
   display: grid;
   grid-auto-columns: auto;
   .chakra-stat {
-    min-width: 250px;
+    min-width: 200px;
     height: 180px;
     margin: 10px;
     padding: 30px;

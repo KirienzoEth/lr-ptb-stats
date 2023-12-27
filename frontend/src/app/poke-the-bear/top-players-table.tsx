@@ -68,7 +68,7 @@ export default function Page() {
   );
 
   return (
-    <TableContainer>
+    <TableContainer margin="0 50px">
       <Table display={isLoading ? '' : 'none'} variant="simple" size={'sm'}>
         {tableHead}
       </Table>

@@ -41,7 +41,7 @@ export default function GeneralStats({ addresses }: { addresses: string[] }) {
   }, []);
 
   return (
-    <StatGroup>
+    <StatGroup className="player-stats">
       <Stat>
         <StatLabel>
           <Image className="currency-logo" src="/ptb-logo.webp" />
