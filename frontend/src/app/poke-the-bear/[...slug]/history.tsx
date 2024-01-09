@@ -103,7 +103,7 @@ export default function RoundsPlayedHistory({
               (round.caveEnterAmount + round.cavePrizeAmount) * BigInt(-1);
             const profits = round.cavePrizeAmount * BigInt(participants);
             const pnl = isLoser ? losses + profits : profits;
-            const roundLink = `https://looksrare.org/poke-the-bear/cave/${round.caveId}/${round.id}`;
+            const roundLink = `https://looksrare.org/poke-the-bear/cave/ethereum/${round.caveId}/${round.id}`;
 
             return (
               <Tr key={`${round.caveId}-${round.id}`}>
