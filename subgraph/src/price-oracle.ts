@@ -42,6 +42,10 @@ export function convertLooksToUSDT(amountInWei: BigInt): BigInt {
  * @returns How much is the amount provided worth in USDT tokens
  */
 export function convertEthToUSDT(amountInWei: BigInt): BigInt {
+  if (amountInWei === BigInt.zero()) {
+    return amountInWei;
+  }
+
   const precisionMultiplier = BigInt.fromI32(10_000);
   let contract = UniV2Pool.bind(ethUsdtUniV2PoolAddress);
   if (dataSource.network() === 'arbitrum-one') {
