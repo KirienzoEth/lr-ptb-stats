@@ -1,4 +1,4 @@
-import { Address } from '@graphprotocol/graph-ts';
+import { Address, dataSource } from '@graphprotocol/graph-ts';
 import { ENSReverseLookup } from '../generated/PokeTheBear/ENSReverseLookup';
 import { Player } from '../generated/schema';
 
@@ -7,6 +7,10 @@ export const ensReverseRecordsAddress = Address.fromString(
 );
 
 export function updatePlayerENSName(player: Player): void {
+  if (dataSource.network() !== 'mainnet') {
+    return;
+  }
+
   const ensName = ENSReverseLookup.bind(ensReverseRecordsAddress);
   const name = ensName.getNames([Address.fromString(player.id)])[0];
 

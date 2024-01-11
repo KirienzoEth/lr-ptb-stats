@@ -3,13 +3,12 @@
     "PokeTheBear": {
       "address": "0x00000000009f22B55D3105e5CfF7D1a6503cF3cE",
       "startBlock": 18641174
-    },
-    "PriceOracle": {
-      "address": "0x00000000000A95dBfC66D37F3FC5E597C0b03Daf",
-      "startBlock": 18641174
-    },
-    "ENSReverseLookup": {
-      "address": "0x3671aE578E63FdF66ad4F3E12CC0c0d71Ac7510C"
+    }
+  },
+  "arbitrum": {
+    "PokeTheBear": {
+      "address": "0x000000000083DBf7364e6A22FEDd0ad64aF3248d",
+      "startBlock": 155285203
     }
   }
 }

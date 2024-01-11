@@ -1,4 +1,4 @@
-import { Address, BigInt } from '@graphprotocol/graph-ts';
+import { Address, BigInt, dataSource, log } from '@graphprotocol/graph-ts';
 import { PriceOracle } from '../generated/PokeTheBear/PriceOracle';
 import { UniV2Pool } from '../generated/PokeTheBear/UniV2Pool';
 
@@ -7,6 +7,9 @@ export const priceOracleAddress = Address.fromString(
 );
 export const ethUsdtUniV2PoolAddress = Address.fromString(
   '0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852'
+);
+export const ethUsdcUniV2PoolAddressArbitrum = Address.fromString(
+  '0x905dfcd5649217c42684f23958568e533c711aa3'
 );
 export const looksTokenAddress = Address.fromString(
   '0xf4d2888d29d722226fafa5d9b24f9164c092421e'
@@ -40,10 +43,14 @@ export function convertLooksToUSDT(amountInWei: BigInt): BigInt {
  */
 export function convertEthToUSDT(amountInWei: BigInt): BigInt {
   const precisionMultiplier = BigInt.fromI32(10_000);
-  const contract = UniV2Pool.bind(ethUsdtUniV2PoolAddress);
+  let contract = UniV2Pool.bind(ethUsdtUniV2PoolAddress);
+  if (dataSource.network() === 'arbitrum-one') {
+    contract = UniV2Pool.bind(ethUsdcUniV2PoolAddressArbitrum);
+  }
   const reserve = contract.getReserves();
+  // token0 is WETH, token1 is USDT or USDC
   const ethReserve = reserve.get_reserve0();
-  // USDT only has 6 decimals so add 12 zeroes to push to 18
+  // USDT/USDC only have 6 decimals so add 12 zeroes to push to 18
   const usdtReserve = reserve.get_reserve1().times(BigInt.fromI32(10).pow(12));
 
   const usdtPerETH = precisionMultiplier.times(usdtReserve).div(ethReserve);
