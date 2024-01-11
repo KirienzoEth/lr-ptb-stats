@@ -65,9 +65,13 @@ export default function Page() {
             Address
           </Th>
           <Th width="10%">USD Wagered</Th>
-          <Th width="10%">Looks wagered</Th>
+          <Th width="10%" display={network === Network.ETHEREUM ? '' : 'none'}>
+            Looks wagered
+          </Th>
           <Th width="10%">ETH wagered</Th>
-          <Th width="10%">Gas paid</Th>
+          <Th width="10%" display={network === Network.ETHEREUM ? '' : 'none'}>
+            Gas paid
+          </Th>
           <Th width="5%" textAlign="right">
             Rounds played
           </Th>
@@ -106,7 +110,10 @@ export default function Page() {
                 {player.ensName ? player.ensName : player.address}
               </Td>
               <Td>${formatTokenAmount(player.usdWagered)}</Td>
-              <Td textAlign="right">
+              <Td
+                textAlign="right"
+                display={network === Network.ETHEREUM ? '' : 'none'}
+              >
                 <Flex alignItems="center">
                   <Image src="/looks.webp" width={6} marginRight="10px" />
                   {player.looksWagered === BigInt(0) ? (
@@ -143,7 +150,10 @@ export default function Page() {
                   )}
                 </Flex>
               </Td>
-              <Td textAlign="left">
+              <Td
+                textAlign="left"
+                display={network === Network.ETHEREUM ? '' : 'none'}
+              >
                 <Flex alignItems="center">
                   <Image src="/ethereum.webp" width={6} />
                   <div style={lossStyle}>

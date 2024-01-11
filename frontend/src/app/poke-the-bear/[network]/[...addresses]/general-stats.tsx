@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from 'react';
 import { ptbSubgraphAPI } from '@/common/api';
 import './page.scss';
+import { Network } from '@/common/enums';
 
 export default function GeneralStats({ addresses }: { addresses: string[] }) {
   const network = getNetwork();
@@ -65,7 +66,7 @@ export default function GeneralStats({ addresses }: { addresses: string[] }) {
           ${formatTokenAmount(playerData.usdWagered ?? 0)}
         </StatNumber>
       </Stat>
-      <Stat>
+      <Stat display={network === Network.ETHEREUM ? '' : 'none'}>
         <StatLabel>
           <Image className="currency-logo" src="/looks.webp" />
           Looks
@@ -119,7 +120,7 @@ export default function GeneralStats({ addresses }: { addresses: string[] }) {
           </span>
         </StatHelpText>
       </Stat>
-      <Stat>
+      <Stat display={network === Network.ETHEREUM ? '' : 'none'}>
         <StatLabel>💸 Gas fees</StatLabel>
         <StatNumber>
           <StatArrow type="decrease" />
@@ -139,7 +140,7 @@ export default function GeneralStats({ addresses }: { addresses: string[] }) {
             ${formatTokenAmount(playerPnLWithGas ?? 0)}
           </span>
         </StatNumber>
-        <StatHelpText>
+        <StatHelpText display={network === Network.ETHEREUM ? '' : 'none'}>
           <StatArrow type={playerData.usdPnL > 0 ? 'increase' : 'decrease'} />
           without gas fees:{' '}
           <span className={playerData.usdPnL > 0 ? 'profit' : 'loss'}>

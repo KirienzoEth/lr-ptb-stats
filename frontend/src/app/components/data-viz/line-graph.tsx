@@ -1,5 +1,5 @@
 'use client';
-import { Container, Flex, Text } from '@chakra-ui/react';
+import { Container } from '@chakra-ui/react';
 import { ResponsiveLine, Serie } from '@nivo/line';
 
 export default function LineGraph({ data }: { data: Serie[] }) {

@@ -14,7 +14,6 @@ import {
 import { useEffect, useState } from 'react';
 import { formatTokenAmount, getNetwork } from '../../utils';
 import './general-stats.scss';
-import { useSearchParams } from 'next/navigation';
 
 export default function GeneralStats() {
   const network = getNetwork();
