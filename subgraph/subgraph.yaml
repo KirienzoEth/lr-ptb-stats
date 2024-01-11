@@ -32,8 +32,8 @@ dataSources:
           file: ./abis/PokeTheBear.json
         - name: PriceOracle
           file: ./abis/PriceOracle.json
-        - name: UniV2Pool
-          file: ./abis/UniV2Pool.json
+        - name: SushiPool
+          file: ./abis/SushiPool.json
         - name: ENSReverseLookup
           file: ./abis/ENSReverseLookup.json
       eventHandlers:

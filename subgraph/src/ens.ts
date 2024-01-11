@@ -7,7 +7,7 @@ export const ensReverseRecordsAddress = Address.fromString(
 );
 
 export function updatePlayerENSName(player: Player): void {
-  if (dataSource.network() !== 'mainnet') {
+  if (dataSource.network() != 'mainnet') {
     return;
   }
 

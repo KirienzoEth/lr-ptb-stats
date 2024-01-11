@@ -1,6 +1,7 @@
 import { Address, BigInt, dataSource, log } from '@graphprotocol/graph-ts';
 import { PriceOracle } from '../generated/PokeTheBear/PriceOracle';
 import { UniV2Pool } from '../generated/PokeTheBear/UniV2Pool';
+import { SushiPool } from '../generated/PokeTheBear/SushiPool';
 
 export const priceOracleAddress = Address.fromString(
   '0x00000000000A95dBfC66D37F3FC5E597C0b03Daf'
@@ -8,7 +9,7 @@ export const priceOracleAddress = Address.fromString(
 export const ethUsdtUniV2PoolAddress = Address.fromString(
   '0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852'
 );
-export const ethUsdcUniV2PoolAddressArbitrum = Address.fromString(
+export const ethUsdcSushiPoolAddressArbitrum = Address.fromString(
   '0x905dfcd5649217c42684f23958568e533c711aa3'
 );
 export const looksTokenAddress = Address.fromString(
@@ -47,15 +48,27 @@ export function convertEthToUSDT(amountInWei: BigInt): BigInt {
   }
 
   const precisionMultiplier = BigInt.fromI32(10_000);
-  let contract = UniV2Pool.bind(ethUsdtUniV2PoolAddress);
-  if (dataSource.network() === 'arbitrum-one') {
-    contract = UniV2Pool.bind(ethUsdcUniV2PoolAddressArbitrum);
+
+  let ethReserve = BigInt.zero();
+  let usdtReserve = BigInt.zero();
+  if (dataSource.network() == 'arbitrum-one') {
+    const contract = SushiPool.bind(ethUsdcSushiPoolAddressArbitrum);
+    // token0 is WETH, token1 is USDT
+    const reserve = contract.getReserves();
+    ethReserve = reserve.get_reserve0();
+    // USDC only have 6 decimals so add 12 zeroes to push to 18
+    usdtReserve = reserve.get_reserve1().times(BigInt.fromI32(10).pow(12));
+  } else if (dataSource.network() == 'mainnet') {
+    const contract = UniV2Pool.bind(ethUsdtUniV2PoolAddress);
+    // token0 is WETH, token1 is USDC
+    const reserve = contract.getReserves();
+    ethReserve = reserve.get_reserve0();
+    // USDT only have 6 decimals so add 12 zeroes to push to 18
+    usdtReserve = reserve.get_reserve1().times(BigInt.fromI32(10).pow(12));
+  } else {
+    log.warning('No matching network for {}', [dataSource.network()]);
+    return BigInt.zero();
   }
-  const reserve = contract.getReserves();
-  // token0 is WETH, token1 is USDT or USDC
-  const ethReserve = reserve.get_reserve0();
-  // USDT/USDC only have 6 decimals so add 12 zeroes to push to 18
-  const usdtReserve = reserve.get_reserve1().times(BigInt.fromI32(10).pow(12));
 
   const usdtPerETH = precisionMultiplier.times(usdtReserve).div(ethReserve);
 

@@ -60,7 +60,7 @@ export function handleRoundsEntered(event: RoundsEnteredEvent): void {
   // Save gas fees paid by the player to enter the round
   let feesPaidInETH = BigInt.zero();
   let feesPaidInUSD = BigInt.zero();
-  if (dataSource.network() === 'mainnet') {
+  if (dataSource.network() == 'mainnet') {
     const feesPaidInETH = event.receipt!.gasUsed.times(
       event.transaction.gasPrice
     );
@@ -243,7 +243,7 @@ export function handleRoundStatusUpdated(event: RoundStatusUpdatedEvent): void {
 
 export function handlePrizesClaimed(event: PrizesClaimed): void {
   // We don't care about gas fees outside of mainnet
-  if (dataSource.network() !== 'mainnet') {
+  if (dataSource.network() != 'mainnet') {
     return;
   }
 
