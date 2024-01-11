@@ -5,10 +5,11 @@ import BarGraph from '@/app/components/data-viz/bar-graph';
 import { useEffect, useState } from 'react';
 import { Serie } from '@nivo/line';
 import { formatEther } from 'viem';
-import { Container, Flex, Heading } from '@chakra-ui/react';
+import { Flex, Heading } from '@chakra-ui/react';
 import { BarDatum } from '@nivo/bar';
 import './page.scss';
 import './over-time-stats.scss';
+import { getNetwork } from '@/app/utils';
 
 function formatPlayerName(address: string, ensName?: string): string {
   return ensName?.slice(0, 12) ?? address.slice(0, 10);
@@ -82,6 +83,7 @@ function getPlayerNames(playersDailyData: PlayerDailyData[]): string[] {
 }
 
 export default function OverTimeStats({ addresses }: { addresses: string[] }) {
+  const network = getNetwork();
   let [playersDailyData, setPlayersDailyData] = useState(
     [] as PlayerDailyData[]
   );
@@ -91,7 +93,7 @@ export default function OverTimeStats({ addresses }: { addresses: string[] }) {
     // 31 days ago
     const from = Math.floor((new Date().getTime() - 86400000 * 31) / 1000);
     ptbSubgraphAPI
-      .getPlayersDailyData(addresses, from)
+      .getPlayersDailyData(network, addresses, from)
       .then((playerDailyData) => {
         setPlayersDailyData(playerDailyData);
         setIsLoading(false);

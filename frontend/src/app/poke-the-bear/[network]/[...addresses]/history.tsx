@@ -1,6 +1,6 @@
 'use client';
 import PageSelector from '@/app/components/navigation/page-selector';
-import { formatTokenAmount } from '@/app/utils';
+import { formatTokenAmount, getNetwork } from '@/app/utils';
 import { ptbSubgraphAPI } from '@/common/api';
 import { CaveCurrency } from '@/common/enums';
 import { CheckCircleIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons';
@@ -27,16 +27,19 @@ export default function RoundsPlayedHistory({
 }: {
   addresses: string[];
 }) {
+  const network = getNetwork();
   const lcAddresses = addresses.map((address) => address.toLowerCase());
   const [page, setPage] = useState(0);
   let [roundsPlayed, setRoundsPlayed] = useState([] as Round[]);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
-    ptbSubgraphAPI.getPlayersRounds(addresses, page, 10).then((rounds) => {
-      setRoundsPlayed(rounds);
-      setIsLoading(false);
-    });
+    ptbSubgraphAPI
+      .getPlayersRounds(network, addresses, page, 10)
+      .then((rounds) => {
+        setRoundsPlayed(rounds);
+        setIsLoading(false);
+      });
   }, [page]);
 
   const tableHead = (
@@ -103,7 +106,7 @@ export default function RoundsPlayedHistory({
               (round.caveEnterAmount + round.cavePrizeAmount) * BigInt(-1);
             const profits = round.cavePrizeAmount * BigInt(participants);
             const pnl = isLoser ? losses + profits : profits;
-            const roundLink = `https://looksrare.org/poke-the-bear/cave/ethereum/${round.caveId}/${round.id}`;
+            const roundLink = `https://looksrare.org/poke-the-bear/cave/${network}/${round.caveId}/${round.id}`;
 
             return (
               <Tr key={`${round.caveId}-${round.id}`}>

@@ -12,15 +12,17 @@ import {
   StatNumber,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { formatTokenAmount } from '../utils';
+import { formatTokenAmount, getNetwork } from '../../utils';
 import './general-stats.scss';
+import { useSearchParams } from 'next/navigation';
 
 export default function GeneralStats() {
+  const network = getNetwork();
   let [gameData, setGameData] = useState({} as Game);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     isLoading ?? setIsLoading(true);
-    ptbSubgraphAPI.getPTBGame().then((gameData) => {
+    ptbSubgraphAPI.getPTBGame(network).then((gameData) => {
       setGameData(gameData);
       setIsLoading(false);
     });

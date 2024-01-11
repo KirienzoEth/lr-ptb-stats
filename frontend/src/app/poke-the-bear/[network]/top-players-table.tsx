@@ -13,21 +13,34 @@ import {
   Flex,
   Link,
   Skeleton,
-  IconButton,
   Heading,
 } from '@chakra-ui/react';
-import { ArrowBackIcon, ArrowForwardIcon, SearchIcon } from '@chakra-ui/icons';
-import { formatTokenAmount } from '../utils';
+import { SearchIcon } from '@chakra-ui/icons';
+import { formatTokenAmount, getNetwork } from '../../utils';
 import { useEffect, useState } from 'react';
-import PageSelector from '../components/navigation/page-selector';
+import PageSelector from '../../components/navigation/page-selector';
+import { Network } from '@/common/enums';
+
+function getBlockExplorerLink(network: Network, playerAddress: string) {
+  switch (network) {
+    case Network.ARBITRUM:
+      return `https://arbiscan.io/advanced-filter?tadd=0x000000000083DBf7364e6A22FEDd0ad64aF3248d&fadd=${playerAddress}&qt=1`;
+    case Network.ETHEREUM:
+      return `https://etherscan.io/advanced-filter?tadd=0x00000000009f22b55d3105e5cff7d1a6503cf3ce&fadd=${playerAddress}&qt=1`;
+
+    default:
+      return '';
+  }
+}
 
 export default function Page() {
+  const network = getNetwork();
   let [topPlayers, setTopPlayers] = useState([] as Player[]);
   const [page, setPage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
-    ptbSubgraphAPI.getTopPlayers(10, page).then((players) => {
+    ptbSubgraphAPI.getTopPlayers(network, page, 10).then((players) => {
       setTopPlayers(players);
       setIsLoading(false);
     });
@@ -167,11 +180,11 @@ export default function Page() {
                 <Flex justifyContent="center">
                   <Link
                     target="_blank"
-                    href={`https://etherscan.io/advanced-filter?tadd=0x00000000009f22b55d3105e5cff7d1a6503cf3ce&fadd=${player.address}&qt=1`}
+                    href={getBlockExplorerLink(network, player.address)}
                   >
                     <Image width="20px" src="/etherscan-logo-circle.svg" />
                   </Link>
-                  <Link href={`/poke-the-bear/${player.address}`}>
+                  <Link href={`/poke-the-bear/${network}/${player.address}`}>
                     <SearchIcon width="2.5em" />
                   </Link>
                 </Flex>

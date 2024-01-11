@@ -1,5 +1,5 @@
 'use client';
-import { formatTokenAmount } from '@/app/utils';
+import { formatTokenAmount, getNetwork } from '@/app/utils';
 import {
   Stat,
   StatLabel,
@@ -14,12 +14,13 @@ import { ptbSubgraphAPI } from '@/common/api';
 import './page.scss';
 
 export default function GeneralStats({ addresses }: { addresses: string[] }) {
+  const network = getNetwork();
   let [playerPnLWithGas, setPlayerPnLWithGas] = useState(BigInt(0));
   let [playerData, setPlayerData] = useState({} as Player);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
-    ptbSubgraphAPI.getPlayers(addresses).then((players) => {
+    ptbSubgraphAPI.getPlayers(network, addresses).then((players) => {
       const cumulatedPlayersData = players[0];
       for (let i = 1; i < players.length; i++) {
         const additionalPlayer = players[i];

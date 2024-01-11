@@ -12,11 +12,19 @@ export default function Page() {
       justifyContent="center"
       wrap="wrap"
     >
-      <Link textDecoration="none" as={NextLink} href="/poke-the-bear">
-        <Card width="400px" height="400px" maxW="sm" padding="20px">
+      <Link textDecoration="none" as={NextLink} href="/poke-the-bear/ethereum">
+        <Card width="400px" height="450px" maxW="sm" padding="20px">
           <CardBody textAlign="center">
             <Image margin="auto" height="280px" src="/ptb-logo.webp" />
-            <Heading marginTop="20px">Poke The Bear</Heading>
+            <Heading marginTop="20px">Poke The Bear (ETH)</Heading>
+          </CardBody>
+        </Card>
+      </Link>
+      <Link textDecoration="none" as={NextLink} href="/poke-the-bear/arbitrum">
+        <Card width="400px" height="450px" maxW="sm" padding="20px">
+          <CardBody textAlign="center">
+            <Image margin="auto" height="280px" src="/ptb-logo.webp" />
+            <Heading marginTop="20px">Poke The Bear (ARB)</Heading>
           </CardBody>
         </Card>
       </Link>
@@ -25,7 +33,7 @@ export default function Page() {
         as={NextLink}
         href="#"
       >
-        <Card width="400px" height="400px" maxW="sm" padding="20px">
+        <Card width="400px" height="450px" maxW="sm" padding="20px">
           <CardBody textAlign="center">
             <Image
               filter="grayscale(100%)"

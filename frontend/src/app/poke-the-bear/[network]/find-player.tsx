@@ -1,3 +1,4 @@
+import { getNetwork } from '@/app/utils';
 import { Search2Icon } from '@chakra-ui/icons';
 import {
   Alert,
@@ -16,6 +17,7 @@ import { useState } from 'react';
 import { isAddress } from 'viem';
 
 export default function FindPlayer() {
+  const network = getNetwork();
   const [inputValue, setInputValue] = useState('');
   const [isInvalidAddress, setIsInvalidAddress] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +25,6 @@ export default function FindPlayer() {
   const handleConfirm = (event: any) => {
     const isValid = isAddress(inputValue);
     setIsInvalidAddress(!isValid);
-    console.log(inputValue, isValid);
     if (isValid) {
       setIsLoading(true);
       return true;
@@ -46,7 +47,7 @@ export default function FindPlayer() {
         <Link
           onClick={handleConfirm}
           as={NextLink}
-          href={`/poke-the-bear/${inputValue}`}
+          href={`/poke-the-bear/${network}/${inputValue}`}
         >
           <Button disabled={isLoading} size="lg">
             {isLoading ? (

@@ -1,3 +1,4 @@
+'use client';
 import {
   Alert,
   AlertDescription,
@@ -9,8 +10,8 @@ import OverTimeStats from './over-time-stats';
 import GeneralStats from './general-stats';
 import RoundsPlayedHistory from './history';
 
-export default function Page({ params }: { params: { slug: string[] } }) {
-  const addresses = [...new Set(params.slug)];
+export default function Page({ params }: { params: { addresses: string[] } }) {
+  const addresses = [...new Set(params.addresses)];
   const errorAddresses = addresses
     .map((address) => address.toLowerCase())
     .filter((address) => !isAddress(address));

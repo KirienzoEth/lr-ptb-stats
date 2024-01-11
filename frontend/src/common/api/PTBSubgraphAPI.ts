@@ -1,13 +1,26 @@
-import { CaveCurrency } from '../enums';
+import { CaveCurrency, Network } from '../enums';
 import { IHTTPClient } from '../http-client/IHTTPClient';
 
 export class PTBSubgraphAPI {
-  private url =
+  private urlEthereum =
     'https://api.thegraph.com/subgraphs/name/kirienzoeth/lr-ptb-stats';
+  private urlArbitrum =
+    'https://api.thegraph.com/subgraphs/name/kirienzoeth/lr-ptb-stats-arbitrum';
   private httpClient: IHTTPClient;
 
   constructor(httpClient: IHTTPClient) {
     this.httpClient = httpClient;
+  }
+
+  private getUrlForNetwork(network: Network) {
+    switch (network) {
+      case Network.ARBITRUM:
+        return this.urlArbitrum;
+      case Network.ETHEREUM:
+        return this.urlEthereum;
+      default:
+        throw new Error(`No subgraph for network ${network}`);
+    }
   }
 
   private parseRawPlayerData(rawPlayerData: GQLPlayer): Player {
@@ -78,7 +91,7 @@ export class PTBSubgraphAPI {
     };
   }
 
-  async getPTBGame(): Promise<Game> {
+  async getPTBGame(network = Network.ETHEREUM): Promise<Game> {
     const body = {
       query: `
         query getGame($id: ID!) {
@@ -96,11 +109,17 @@ export class PTBSubgraphAPI {
         id: 'PTB',
       },
     };
-    const data = await this.httpClient.post(this.url, body);
+    const data = await this.httpClient.post(
+      this.getUrlForNetwork(network),
+      body
+    );
     return this.parseRawGameData(data.data.game);
   }
 
-  async getPlayers(addresses: string[] = []): Promise<Player[]> {
+  async getPlayers(
+    network = Network.ETHEREUM,
+    addresses: string[] = []
+  ): Promise<Player[]> {
     const filter: GQLPlayerFilter = {};
     if (addresses.length > 0) {
       filter['id_in'] = addresses.map((address) => address.toLowerCase());
@@ -137,13 +156,17 @@ export class PTBSubgraphAPI {
         filter,
       },
     };
-    const data = await this.httpClient.post(this.url, body);
+    const data = await this.httpClient.post(
+      this.getUrlForNetwork(network),
+      body
+    );
     return data.data.players.map(
       (player: GQLPlayer): Player => this.parseRawPlayerData(player)
     );
   }
 
   async getPlayersDailyData(
+    network = Network.ETHEREUM,
     addresses: string[],
     from?: number,
     to?: number
@@ -184,14 +207,21 @@ export class PTBSubgraphAPI {
         filter,
       },
     };
-    const data = await this.httpClient.post(this.url, body);
+    const data = await this.httpClient.post(
+      this.getUrlForNetwork(network),
+      body
+    );
     return data.data.playerDailyDatas.map(
       (playerDailyData: GQLPlayerDailyData): PlayerDailyData =>
         this.parseRawPlayerDailyData(playerDailyData)
     );
   }
 
-  async getTopPlayers(limit: number, page = 0): Promise<Player[]> {
+  async getTopPlayers(
+    network = Network.ETHEREUM,
+    page = 0,
+    limit = 10
+  ): Promise<Player[]> {
     const body = {
       query: `
         query GetPlayers($limit: Int!, $skip: Int!) {
@@ -224,13 +254,17 @@ export class PTBSubgraphAPI {
         skip: page * limit,
       },
     };
-    const data = await this.httpClient.post(this.url, body);
+    const data = await this.httpClient.post(
+      this.getUrlForNetwork(network),
+      body
+    );
     return data.data.players.map(
       (player: GQLPlayer): Player => this.parseRawPlayerData(player)
     );
   }
 
   async getPlayersRounds(
+    network = Network.ETHEREUM,
     addresses: string[],
     page = 0,
     limit = 10
@@ -267,7 +301,10 @@ export class PTBSubgraphAPI {
         skip: page * limit,
       },
     };
-    const data = await this.httpClient.post(this.url, body);
+    const data = await this.httpClient.post(
+      this.getUrlForNetwork(network),
+      body
+    );
     return data.data.rounds.map(
       (round: GQLRound): Round => this.parseRawRoundData(round)
     );
