@@ -86,9 +86,7 @@ export default function Page() {
             Looks wagered
           </Th>
           <Th width="10%">ETH wagered</Th>
-          <Th width="10%" display={network === Network.ETHEREUM ? '' : 'none'}>
-            Gas paid
-          </Th>
+          <Th width="10%">Gas paid</Th>
           <Th width="5%" textAlign="right">
             Rounds played
           </Th>
@@ -167,18 +165,19 @@ export default function Page() {
                   )}
                 </Flex>
               </Td>
-              <Td
-                textAlign="left"
-                display={network === Network.ETHEREUM ? '' : 'none'}
-              >
+              <Td textAlign="left">
                 <Flex alignItems="center">
                   <Image src="/ethereum.webp" width={6} />
                   <div style={lossStyle}>
-                    -{formatTokenAmount(player.feesPaidInETH, 2)}
+                    -
+                    {formatTokenAmount(
+                      player.feesPaidInETH,
+                      network === Network.ETHEREUM ? 2 : 5
+                    )}
                   </div>
                 </Flex>
                 <div style={lossStyle}>
-                  -${formatTokenAmount(player.feesPaidInUSD, 2)}
+                  -${formatTokenAmount(player.feesPaidInUSD)}
                 </div>
               </Td>
               <Td textAlign="right">

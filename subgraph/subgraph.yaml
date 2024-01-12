@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: PokeTheBear
-    network: mainnet
+    network: arbitrum-one
     source:
-      address: "0x00000000009f22B55D3105e5CfF7D1a6503cF3cE"
       abi: PokeTheBear
-      startBlock: 18641174
+      address: "0x000000000083DBf7364e6A22FEDd0ad64aF3248d"
+      startBlock: 158985972
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -45,6 +45,8 @@ dataSources:
           handler: handleRoundStatusUpdated
         - event: RoundsEntered(uint256,uint256,uint256,address)
           handler: handleRoundsEntered
+          receipt: true
         - event: PrizesClaimed((uint256,uint256[])[],address)
           handler: handlePrizesClaimed
+          receipt: true
       file: ./src/poke-the-bear.ts

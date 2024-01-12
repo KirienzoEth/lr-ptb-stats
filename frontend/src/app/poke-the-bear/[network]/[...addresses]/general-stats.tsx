@@ -120,11 +120,14 @@ export default function GeneralStats({ addresses }: { addresses: string[] }) {
           </span>
         </StatHelpText>
       </Stat>
-      <Stat display={network === Network.ETHEREUM ? '' : 'none'}>
+      <Stat>
         <StatLabel>💸 Gas fees</StatLabel>
         <StatNumber>
           <StatArrow type="decrease" />
-          {formatTokenAmount(playerData.feesPaidInETH ?? 0)}
+          {formatTokenAmount(
+            playerData.feesPaidInETH ?? 0,
+            network === Network.ETHEREUM ? 2 : 5
+          )}
           <Image width="7" className="currency-logo" src="/ethereum.webp" />
         </StatNumber>
         <StatHelpText>
@@ -140,7 +143,7 @@ export default function GeneralStats({ addresses }: { addresses: string[] }) {
             ${formatTokenAmount(playerPnLWithGas ?? 0)}
           </span>
         </StatNumber>
-        <StatHelpText display={network === Network.ETHEREUM ? '' : 'none'}>
+        <StatHelpText>
           <StatArrow type={playerData.usdPnL > 0 ? 'increase' : 'decrease'} />
           without gas fees:{' '}
           <span className={playerData.usdPnL > 0 ? 'profit' : 'loss'}>

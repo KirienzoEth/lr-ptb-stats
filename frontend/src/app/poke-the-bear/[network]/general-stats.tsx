@@ -14,6 +14,7 @@ import {
 import { useEffect, useState } from 'react';
 import { formatTokenAmount, getNetwork } from '../../utils';
 import './general-stats.scss';
+import { Network } from '@/common/enums';
 
 export default function GeneralStats() {
   const network = getNetwork();
@@ -51,7 +52,7 @@ export default function GeneralStats() {
             </StatNumber>
           </Stat>
           <Divider orientation="vertical" height="110px" margin="10px 0" />
-          <Stat>
+          <Stat display={network === Network.ARBITRUM ? 'none' : ''}>
             <StatLabel>
               <Image className="currency-logo" src="/looks.webp" />
               Looks earned
