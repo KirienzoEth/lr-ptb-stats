@@ -20,6 +20,7 @@ import { formatTokenAmount, getNetwork } from '../../utils';
 import { useEffect, useState } from 'react';
 import PageSelector from '../../components/navigation/page-selector';
 import { Network } from '@/common/enums';
+import { getEnsNameFromAddress } from '@/common/ens-resolver';
 
 function getBlockExplorerLink(network: Network, playerAddress: string) {
   switch (network) {
@@ -41,8 +42,24 @@ export default function Page() {
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
     ptbSubgraphAPI.getTopPlayers(network, page, 10).then((players) => {
-      setTopPlayers(players);
-      setIsLoading(false);
+      const promises: Promise<void>[] = [];
+      players.forEach((player, index) => {
+        if (player.ensName) {
+          return player;
+        }
+
+        promises.push(
+          getEnsNameFromAddress(player.address).then((name) => {
+            if (!name) return;
+
+            players[index].ensName = name;
+          })
+        );
+      });
+      Promise.all(promises).then(() => {
+        setTopPlayers(players);
+        setIsLoading(false);
+      });
     });
   }, [page]);
 
@@ -192,7 +209,14 @@ export default function Page() {
                     target="_blank"
                     href={getBlockExplorerLink(network, player.address)}
                   >
-                    <Image width="20px" src={network === Network.ARBITRUM ? '/arbiscan-logo.svg' : '/etherscan-logo-circle.svg'} />
+                    <Image
+                      width="20px"
+                      src={
+                        network === Network.ARBITRUM
+                          ? '/arbiscan-logo.svg'
+                          : '/etherscan-logo-circle.svg'
+                      }
+                    />
                   </Link>
                   <Link href={`/poke-the-bear/${network}/${player.address}`}>
                     <SearchIcon width="2.5em" />

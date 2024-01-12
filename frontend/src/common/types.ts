@@ -4,7 +4,7 @@ enum CaveCurrency {
 }
 
 interface Player {
-  address: string;
+  address: `0x${string}`;
   ensName: string;
   looksWagered: bigint;
   ethWagered: bigint;
@@ -38,7 +38,7 @@ interface PlayerDailyData {
 }
 
 interface GQLPlayer {
-  id: string;
+  id: `0x${string}`;
   ensName: string;
   looksWagered: string;
   ethWagered: string;
@@ -60,7 +60,7 @@ interface GQLPlayer {
 interface GQLPlayerDailyData {
   id: string;
   player: {
-    id: string;
+    id: `0x${string}`;
     ensName: string | null;
   };
   timestamp: string;

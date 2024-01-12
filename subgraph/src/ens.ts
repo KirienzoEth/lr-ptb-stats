@@ -6,6 +6,10 @@ export const ensReverseRecordsAddress = Address.fromString(
   '0x3671aE578E63FdF66ad4F3E12CC0c0d71Ac7510C'
 );
 
+/**
+ * @deprecated The ENS resolution should be done by the frontend, this is not necessary anymore
+ * @param player
+ */
 export function updatePlayerENSName(player: Player): void {
   if (dataSource.network() != 'mainnet') {
     return;
