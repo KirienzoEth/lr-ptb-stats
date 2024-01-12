@@ -192,7 +192,7 @@ export default function Page() {
                     target="_blank"
                     href={getBlockExplorerLink(network, player.address)}
                   >
-                    <Image width="20px" src="/etherscan-logo-circle.svg" />
+                    <Image width="20px" src={network === Network.ARBITRUM ? '/arbiscan-logo.svg' : '/etherscan-logo-circle.svg'} />
                   </Link>
                   <Link href={`/poke-the-bear/${network}/${player.address}`}>
                     <SearchIcon width="2.5em" />
