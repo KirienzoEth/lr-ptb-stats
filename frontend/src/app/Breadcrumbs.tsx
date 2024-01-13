@@ -14,7 +14,7 @@ export default function Breadcrumbs() {
   if (pathElements[0] === 'poke-the-bear') {
     breadcrumbs.push(
       <BreadcrumbItem>
-        <BreadcrumbLink href={`/poke-the-bear/${network}`}>
+        <BreadcrumbLink href={`/poke-the-bear/${network}#`}>
           Poke The Bear ({network})
         </BreadcrumbLink>
       </BreadcrumbItem>
