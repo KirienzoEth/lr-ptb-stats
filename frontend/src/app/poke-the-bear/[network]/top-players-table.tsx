@@ -42,6 +42,7 @@ export default function Page() {
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
     ptbSubgraphAPI.getTopPlayers(network, page, 10).then((players) => {
+      console.log(players);
       const promises: Promise<void>[] = [];
       players.forEach((player, index) => {
         if (player.ensName) {
@@ -182,12 +183,12 @@ export default function Page() {
               </Td>
               <Td textAlign="right">
                 <div>
-                  <div>{+player.roundsEnteredCount.toLocaleString()}</div>
+                  <div>{player.roundsEnteredCount.toLocaleString()}</div>
                   <div style={winStyle}>
-                    W: {+player.roundsWonCount.toLocaleString()}
+                    W: {player.roundsWonCount.toLocaleString()}
                   </div>
                   <div style={lossStyle}>
-                    L: {+player.roundsLostCount.toLocaleString()}
+                    L: {player.roundsLostCount.toLocaleString()}
                   </div>
                 </div>
               </Td>
