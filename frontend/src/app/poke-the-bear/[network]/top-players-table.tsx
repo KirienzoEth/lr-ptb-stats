@@ -42,7 +42,6 @@ export default function Page() {
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
     ptbSubgraphAPI.getTopPlayers(network, page, 10).then((players) => {
-      console.log(players);
       const promises: Promise<void>[] = [];
       players.forEach((player, index) => {
         if (player.ensName) {
