@@ -17,11 +17,20 @@
 @media only screen and (max-width: 1200px) {
   #footer {
     position: static;
+    margin-top: 20px;
     width: 100%;
     text-align: center;
     flex-wrap: wrap;
     justify-content: center;
     height: 50px;
     font-size: 13px;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  #footer {
+    code {
+      font-size: 12px;
+    }
   }
 }

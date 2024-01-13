@@ -25,11 +25,11 @@ export default function Page({ params }: { params: { addresses: string[] } }) {
           <AlertDescription>{errorAddresses.join(', ')}</AlertDescription>
         </Alert>
       ) : (
-        <div style={{ height: '100vh', width: '100%' }}>
+        <>
           <GeneralStats addresses={addresses} />
           <OverTimeStats addresses={addresses} />
           <RoundsPlayedHistory addresses={addresses} />
-        </div>
+        </>
       )}
     </>
   );

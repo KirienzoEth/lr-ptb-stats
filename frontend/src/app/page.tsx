@@ -5,7 +5,6 @@ import NextLink from 'next/link';
 export default function Page() {
   return (
     <Flex
-      height="100vh"
       width="100%"
       gap="3%"
       alignItems="center"
