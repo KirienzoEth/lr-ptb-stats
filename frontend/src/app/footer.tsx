@@ -24,7 +24,7 @@ export default function Footer() {
       <Flex>
         Donate:
         <Code marginLeft={'10px'}>
-          0x0a38C3a976B169574bD16412b654c1Ee0DB92e1B
+          0x8057ab90850770615F6fC9100B5d560bB32fe785
         </Code>
       </Flex>
     </Flex>
