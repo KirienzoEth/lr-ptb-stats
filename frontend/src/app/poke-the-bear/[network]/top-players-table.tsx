@@ -55,8 +55,10 @@ export default function Page() {
 
               players[index].ensName = name;
             })
-            .catch((error) => {
-              console.error(error.message);
+            .catch(() => {
+              console.error(
+                `Error while looking for the ENS name of ${player.address}`
+              );
             })
         );
       });
