@@ -31,7 +31,10 @@ export default function Breadcrumbs() {
   }
 
   return (
-    <Breadcrumb id="breadcrumbs">
+    <Breadcrumb
+      id="breadcrumbs"
+      display={breadcrumbs.length === 0 ? 'none' : ''}
+    >
       <BreadcrumbItem>
         <BreadcrumbLink href="/">Home</BreadcrumbLink>
       </BreadcrumbItem>
