@@ -13,7 +13,7 @@ export default function Breadcrumbs() {
 
   if (pathElements[0] === 'poke-the-bear') {
     breadcrumbs.push(
-      <BreadcrumbItem>
+      <BreadcrumbItem key="ptb">
         <BreadcrumbLink href={`/poke-the-bear/${network}#`}>
           Poke The Bear ({network})
         </BreadcrumbLink>
@@ -23,7 +23,7 @@ export default function Breadcrumbs() {
     pathElements.shift();
     if (pathElements[0] && pathElements[0].slice(0, 2) === '0x') {
       breadcrumbs.push(
-        <BreadcrumbItem>
+        <BreadcrumbItem key="#">
           <BreadcrumbLink href="#">Player stats</BreadcrumbLink>
         </BreadcrumbItem>
       );
@@ -35,7 +35,7 @@ export default function Breadcrumbs() {
       id="breadcrumbs"
       display={breadcrumbs.length === 0 ? 'none' : ''}
     >
-      <BreadcrumbItem>
+      <BreadcrumbItem key="/">
         <BreadcrumbLink href="/">Home</BreadcrumbLink>
       </BreadcrumbItem>
       {breadcrumbs}
