@@ -49,11 +49,15 @@ export default function Page() {
         }
 
         promises.push(
-          getEnsNameFromAddress(player.address).then((name) => {
-            if (!name) return;
+          getEnsNameFromAddress(player.address)
+            .then((name) => {
+              if (!name) return;
 
-            players[index].ensName = name;
-          })
+              players[index].ensName = name;
+            })
+            .catch((error) => {
+              console.error(error.message);
+            })
         );
       });
       Promise.all(promises).then(() => {
